@@ -2,7 +2,7 @@
 
 Please submit assignment 0 to this directory.
 
-Remember to create a branch named `-0` 
+Remember to create a branch named `ssancho2-0` 
 instead of submitting to the `master` branch.
 
 If you have any questions, review the GitHub presentation or reach
