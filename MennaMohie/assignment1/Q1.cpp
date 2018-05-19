@@ -41,7 +41,7 @@ bool anagramCheck(string word1, string word2)
     }
     for(i=0; i<length; i++)
     {
-        word1_map[word2[i]].push_back(i);
+        word2_map[word2[i]].push_back(i);
     }
 
     bool differentOrder=false;
@@ -54,17 +54,18 @@ bool anagramCheck(string word1, string word2)
             sameFrequency=false;
             break;
         }
-        else if (differentOrder==false)
+
+        if (differentOrder==false)
         {
             for(int j=0; j<word1_map[word1[i]].size(); j++)
             {
                 if(word1_map[word1[i]][j]!=word2_map[word1[i]][j])
                 {
                     differentOrder=true;
-                    break;
                 }
             }
         }
-        return(differentOrder&&sameFrequency?true:false);
     }
+
+    return(differentOrder&&sameFrequency?true:false);
 }
