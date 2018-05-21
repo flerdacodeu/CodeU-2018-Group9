@@ -1,0 +1,69 @@
+#include <iostream>
+#include <stdio.h>  
+#include <vector>
+#include <string>
+#include <map>
+#include <algorithm>
+using namespace std;
+map<string,int> mp; //maps a string to its frequency in the sentence
+void toLower(string &s){ //change all capital letters in s to lower letters
+	for(int i=0;i<s.size();i++)
+		if(s[i]>='A'&&s[i]<='Z')
+			s[i]+='a'-'A';
+}
+bool seperateWords(string s,int inc){ 
+//builds the words frequency map
+//for the first call the functoin adds 1 to the word frequency
+//for the second call the function subtracts 1 from the word frequency
+	string tmp;
+	for(int i=0;i<s.size();i++){
+		tmp.clear();
+		while(i<s.size() && s[i]!=' '){
+			tmp+=s[i];
+			i++;
+		}
+		sort(tmp.begin(),tmp.end());//sort each word alphabetically
+		if(tmp.size()) //skip white spaces
+			mp[tmp]+=inc;//after sorting words anagrams will be the become the same word
+		if(mp[tmp]<0) //if a word in the second line didn't find an anagram in the first line return false
+			return false;
+	}
+	return true;
+}
+bool areAnagrams(string s,string t, bool caseSensitive){ 
+	//checks if two sentences are anagrams 
+	mp.clear();
+	if(!caseSensitive){
+		toLower(s);
+		toLower(t);
+	}
+	bool f=seperateWords(s,1);
+	f=seperateWords(t,-1);
+	return f;
+}
+int main() {
+	#ifndef ONLINE_JUDGE
+	freopen("input.txt", "r", stdin);
+	#endif
+	string s,t;
+ 	//assumptions: each sentence is written in a single line,
+	//words in a sentence are seperated by white spaces only,
+	//words are composed of capital and lower english letters.
+	//no empty lines in the input.
+	getline(cin,s);
+	getline(cin,t); 
+	if(areAnagrams(s,t, 1))
+		cout<<"Yes, case-sensitive anagram sentences."<<endl;
+	else 
+		cout<<"No, not case-sensitive anagram sentences."<<endl;
+	if( areAnagrams(s,t, 0))
+		cout<<"Yes, case-insensitive anagram sentences."<<endl;
+	else
+		cout<<"No, not case-insensitive anagram sentences."<<endl;
+	return 0;
+}
+
+ 	
+
+
+
