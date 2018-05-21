@@ -1,0 +1,113 @@
+#include <iostream>
+#include <stdio.h>  
+#include <string>
+using namespace std;
+
+template <class T>
+class SLList;
+template <class T>
+class SLLNode{
+//Singly Linked List Node Class building block for a list
+// A single linked list node class to store elements of a generic type T
+public:
+SLLNode(T &VAL, SLLNode* NEXT);
+~SLLNode();
+private:
+	T val;
+	SLLNode * next;
+	friend class SLList<T>;
+};
+template <class T>
+SLLNode<T>::SLLNode(T &VAL, SLLNode * NEXT){
+	val=VAL;
+	next=NEXT;
+}
+template <class T>
+SLLNode<T>::~SLLNode(){}
+
+template <class T>
+class SLList{
+//ADT single linked list class
+//I have implemented only the list functions the algorithm needs.
+public:
+	SLList();
+	~SLList();
+	bool IsEmpty();
+	void addToTail(T&VAL);
+	void clear();
+	int size();
+	T findElementToLast(int k);
+private:
+	SLLNode<T> * head;
+	SLLNode<T> * tail;
+};
+template <class T>
+SLList<T> :: SLList(){
+	head=tail=NULL;
+}
+template <class T>
+SLList<T> :: ~SLList(){
+	clear();
+}
+template <class T>
+bool SLList<T> :: IsEmpty(){
+	return head==NULL;
+}
+template <class T>
+void SLList<T> :: clear(){
+	SLLNode<T> *p;
+	p=head;
+	tail=NULL;
+	while(p!=NULL){
+		head=head->next;
+		delete p;
+		p=head;
+	}
+}
+template <class T>
+void SLList<T> :: addToTail(T &VAL){
+	SLLNode<T> *p=new SLLNode<T>(VAL,NULL);
+	if(tail==NULL)
+		head=p;
+	else
+		tail->next=p;
+	tail=p;
+}
+template <class T>
+int SLList<T> :: size(){//computes and return the current size of the list
+	int count=0;
+	SLLNode<T> * p;
+	for(p=head;p!=NULL;p=p->next)//empty list will not enter this loop
+		count++;
+	return count;
+}
+template <class T>
+T SLList<T> :: findElementToLast(int k){//assuming k belongs to the interval [0,size)
+	int sz=this->size();//gets the current size of the list
+	k=sz-k;//kth element to last is (size-k)th element to first
+	if(k<=0){
+		return -1;//handles cases when k has a wrong value or list is empty
+	}
+	SLLNode <T> * p=head;
+	for(int i=1; i<k ;i++)//searches for elemnt at position k to last
+		p=p->next;
+	return p->val;//return its value
+}
+int main() {
+	#ifndef ONLINE_JUDGE
+	freopen("input.txt", "r", stdin);
+	#endif
+	//a quick test 
+	SLList<int> list;
+	for(int i=0;i<=10;i++)
+		list.addToTail(i);
+	for(int i=0;i<=10;i++){
+		cout<<list.findElementToLast(i)<<" ";
+	}
+	return 0;
+}
+
+ 	
+
+
+
