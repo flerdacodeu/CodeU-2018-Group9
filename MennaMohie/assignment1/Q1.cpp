@@ -1,11 +1,10 @@
 #include<bits/stdc++.h>
 #include<stdlib.h>
-#define endl '\n'
 
 using namespace std;
 
-bool anagramWordCheck(string,string,char);
-bool anagramSentenceCheck(string,string,char);
+bool anagramWordCheck(string,string,bool);
+bool anagramSentenceCheck(string,string,bool);
 
 int main()
 {
@@ -23,7 +22,15 @@ int main()
         cout<<"Please type 's' for Case Sensitive Anagram Checking or 'i' for Case Insensitive Anagram Checking: ";
         cin>>sensitivity;
 
-        cout<<(anagramWordCheck(word1, word2, tolower(sensitivity))?"The two words are anagrams.":"The two words are not anagrams.");
+        bool caseSensitive;
+        sensitivity=tolower(sensitivity);
+        if(sensitivity=='i')
+            caseSensitive=false;
+        else if (sensitivity=='s')
+            caseSensitive=true;
+
+        bool areAnagrams = anagramWordCheck(word1, word2, caseSensitive);
+        cout<<(areAnagrams?"The two words are anagrams.":"The two words are not anagrams.");
     }
 
     else if(choice=='s' || choice=='S')
@@ -38,61 +45,57 @@ int main()
         cout<<"Please type 's' for Case Sensitive Anagram Checking or 'i' for Case Insensitive Anagram Checking: ";
         cin>>sensitivity;
 
-        cout<<(anagramSentenceCheck(sentence1, sentence2, tolower(sensitivity))?"The two sentences are anagrams.":"The two sentences are not anagrams.");
+        bool caseSensitive;
+        sensitivity=tolower(sensitivity);
+        if(sensitivity=='i')
+            caseSensitive=false;
+        else if (sensitivity=='s')
+            caseSensitive=true;
+
+        bool areAnagrams = anagramSentenceCheck(sentence1, sentence2, caseSensitive);
+        cout<<(areAnagrams?"The two sentences are anagrams.":"The two sentences are not anagrams.");
     }
 
     return 0;
 }
 
 
-bool anagramWordCheck(string word1, string word2, char sensitivity)
+bool anagramWordCheck(string word1, string word2, bool caseSensitive)
 {
     if(word1.length()!=word2.length())
         return false;
 
-    //map: key is a character and value is the list of positions of the character
-    map<char,vector<int>> word1_map, word2_map;
+    //map: key is a character and value is the frequency of the character
+    map<char,int> word1_map, word2_map;
     int i, j;
     int length = word1.size();
     for(i=0; i<length; i++)
     {
-        if(sensitivity=='i')
+        if(!caseSensitive)
         {
             word1[i]=tolower(word1[i]);
             word2[i]=tolower(word2[i]);
         }
-        word1_map[word1[i]].push_back(i);
-        word2_map[word2[i]].push_back(i);
+
+        word1_map[word1[i]]++;
+        word2_map[word2[i]]++;
     }
 
-    bool differentOrder=false;
     bool sameFrequency=true;
-
     for(i=0; i<length; i++)
     {
-        if(word1_map[word1[i]].size() != word2_map[word1[i]].size())
+        if(word1_map[word1[i]] != word2_map[word1[i]])
         {
             sameFrequency=false;
             break;
         }
-
-        if (differentOrder==false)
-        {
-            for(int j=0; j<word1_map[word1[i]].size(); j++)
-            {
-                if(word1_map[word1[i]][j]!=word2_map[word1[i]][j])
-                {
-                    differentOrder=true;
-                }
-            }
-        }
     }
 
-    return(differentOrder&&sameFrequency?true:false);
+    return(word1!=word2 && sameFrequency);
 }
 
 //space separated words
-bool anagramSentenceCheck(string sentence1, string sentence2, char sensitivity)
+bool anagramSentenceCheck(string sentence1, string sentence2, bool caseSensitive)
 {
     if(sentence1.size()!=sentence2.size())
         return false;
@@ -115,14 +118,14 @@ bool anagramSentenceCheck(string sentence1, string sentence2, char sensitivity)
     if(sentence1_words.size()!=sentence2_words.size())
         return false;
 
-    int i, j, number_of_words=sentence1_words.size(), anagramCount=0;
-    for(i=0; i<number_of_words; i++)
+    int number_of_words=sentence1_words.size(), anagramCount=0;
+    for(const string &Word : sentence2_words)
     {
-        for(j=0; j<number_of_words; j++)
+        for(int j=0; j<number_of_words; j++)
         {
             if(sentence1_words[j].second==true)
                 continue;
-            if(anagramWordCheck(sentence1_words[j].first,sentence2_words[i],sensitivity))
+            if(anagramWordCheck(sentence1_words[j].first,Word,caseSensitive))
             {
                 anagramCount++;
                 sentence1_words[j].second=true;
@@ -130,5 +133,5 @@ bool anagramSentenceCheck(string sentence1, string sentence2, char sensitivity)
             }
         }
     }
-    return(anagramCount==number_of_words?true:false);
+    return(anagramCount==number_of_words);
 }
