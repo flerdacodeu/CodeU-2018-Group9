@@ -1,6 +1,5 @@
 #include<bits/stdc++.h>
 #include<stdlib.h>
-#define endl '\n'
 
 using namespace std;
 
@@ -12,8 +11,8 @@ class Node
 {
     T value;
     Node *next;
-    Node():next(NULL) {}
-    Node(T val):next(NULL),value(val) {}
+    Node():next(nullptr) {}
+    Node(T val):next(nullptr),value(val) {}
     ~Node() {}
 
     friend class SinglyLinkedList<T>;
@@ -27,37 +26,88 @@ class SinglyLinkedList
     int Size;
 
 public:
-    SinglyLinkedList():head(NULL),tail(NULL),Size(0) {}
-
-    void DisplayKthToLastNode(int k)
+    SinglyLinkedList():head(nullptr),tail(nullptr),Size(0) {}
+    SinglyLinkedList(const SinglyLinkedList<T> &SLL)
     {
-        assert(k>=0 && k<Size);
-        int pos=Size-k-1;
-        DisplayAt(pos);
+        this->Size = SLL.Size;
+
+        if(SLL.head==nullptr)
+        {
+            head=nullptr;
+            tail=nullptr;
+        }
+        else
+        {
+            head=new Node<T>(SLL.head->value);
+            Node<T> *this_temp_ptr = head;
+            Node<T> *other_list_ptr = SLL.head->next;
+            while(other_list_ptr!=nullptr)
+            {
+                this_temp_ptr->next = new Node<T>(other_list_ptr->value);
+                other_list_ptr=other_list_ptr->next;
+                this_temp_ptr=this_temp_ptr->next;
+            }
+            this->tail = this_temp_ptr;
+
+        }
+    }
+    SinglyLinkedList<T>& operator = (const SinglyLinkedList<T> &SLL)
+    {
+        this->Size = SLL.Size;
+
+        if(SLL.head==nullptr)
+        {
+            head=nullptr;
+            tail=nullptr;
+        }
+        else
+        {
+            head=new Node<T>(SLL.head->value);
+            Node<T> *this_temp_ptr = head;
+            Node<T> *other_list_ptr = SLL.head->next;
+            while(other_list_ptr!=nullptr)
+            {
+                this_temp_ptr->next = new Node<T>(other_list_ptr->value);
+                other_list_ptr=other_list_ptr->next;
+                this_temp_ptr=this_temp_ptr->next;
+            }
+            this->tail = this_temp_ptr;
+        }
+        return *this;
+    }
+
+    T GetKthToLastNode(int k)
+    {
+        if(k>=0 && k<Size);
+        {
+            int pos=Size-k-1;
+            return(GetAt(pos));
+        }
 
     }
 
-    void DisplayAt(int pos)
+    T GetAt(int pos)
     {
-        assert(pos>=0 && pos<Size);
-        int i=0;
-        Node<T> *temp = head;
-        while(temp!=NULL)
+        if(pos>=0 && pos<Size);
         {
-            if(i==pos)
+            int i=0;
+            Node<T> *temp = head;
+            while(temp!=nullptr)
             {
-                cout<<temp->value<<endl;
-                break;
+                if(i==pos)
+                {
+                    return temp->value;
+                }
+                temp=temp->next;
+                i++;
             }
-            temp=temp->next;
-            i++;
         }
     }
 
     void DisplayAll()
     {
         Node<T> *temp = head;
-        while(temp!=NULL)
+        while(temp!=nullptr)
         {
             cout<<temp->value<<' ';
             temp=temp->next;
@@ -66,53 +116,46 @@ public:
         delete temp;
     }
 
-    void Add(T val)
-    {
-        Node<T> *new_node = new Node<T>(val);
-        if(head==NULL)
-        {
-            head=tail=new_node;
-        }
-        else
-        {
-            tail->next = new_node;
-            tail=new_node;
-        }
-        Size++;
-    }
-
     void AddAt(T val, int pos)
     {
-        assert(pos>=0 && pos<=Size);
-        Node<T> *new_node = new Node<T>(val);
-        if(pos==0)
+        if(pos>=0 && pos<=Size);
         {
-            new_node->next=head;
-            head=new_node;
-        }
-        else if(pos==Size)
-        {
-            tail->next=new_node;
-            tail=new_node;
-        }
-        else
-        {
-            Node<T> *temp = head;
-            int i=0;
-            while(head->next!=NULL)
+            Node<T> *new_node = new Node<T>(val);
+            if(pos==0)
             {
-                if(i==pos-1)
-                {
-                    new_node->next=temp->next;
-                    temp->next=new_node;
-                    break;
-                }
-                temp=temp->next;
-                i++;
+                new_node->next=head;
+                head=new_node;
+                if(Size==0)
+                    tail=head;
             }
-            delete temp;
+            else if(pos==Size)
+            {
+                tail->next=new_node;
+                tail=new_node;
+            }
+            else
+            {
+                Node<T> *temp = head;
+                int i=0;
+                while(head->next!=nullptr)
+                {
+                    if(i==pos-1)
+                    {
+                        new_node->next=temp->next;
+                        temp->next=new_node;
+                        break;
+                    }
+                    temp=temp->next;
+                    i++;
+                }
+            }
+            Size++;
         }
-        Size++;
+    }
+
+    void Add(T val)
+    {
+        AddAt(val, Size);
     }
 
     void Delete(T val) //deletes first occurrence of a value if it's repeated
@@ -124,17 +167,19 @@ public:
             head=head->next;
             delete node_to_delete;
             Size--;
+            if(Size==0)
+                tail=nullptr;
         }
         else
         {
             Node<T> *temp = head;
-            while(temp->next != NULL)
+            while(temp->next != nullptr)
             {
                 if(temp->next->value==val)
                 {
                     Node<T> *node_to_delete = temp->next;
                     temp->next = node_to_delete->next;
-                    if(node_to_delete->next==NULL)
+                    if(node_to_delete->next==nullptr)
                         tail=temp;
                     delete node_to_delete;
                     Size--;
@@ -142,41 +187,42 @@ public:
                 }
                 temp=temp->next;
             }
-            delete temp;
         }
     }
 
     void DeleteAt(int pos)
     {
-        assert(pos>=0 && pos<Size);
-        if(pos==0)
+        if(pos>=0 && pos<Size);
         {
-            Node<T> *node_to_delete = head;
-            head=head->next;
-            delete node_to_delete;
-            Size--;
-        }
-        else
-        {
-            assert(pos>=0);
-            Node<T> *temp=head;
-            int i=0;
-            while(temp->next!=NULL)
+            if(pos==0)
             {
-                if(i==pos-1)
-                {
-                    Node<T> *node_to_delete = temp->next;
-                    temp->next = node_to_delete->next;
-                    if(node_to_delete->next==NULL)
-                        tail=temp;
-                    delete node_to_delete;
-                    Size--;
-                    break;
-                }
-                temp=temp->next;
-                i++;
+                Node<T> *node_to_delete = head;
+                head=head->next;
+                delete node_to_delete;
+                Size--;
+                if(Size==0)
+                    tail=nullptr;
             }
-            delete temp;
+            else
+            {
+                Node<T> *temp=head;
+                int i=0;
+                while(temp->next!=nullptr)
+                {
+                    if(i==pos-1)
+                    {
+                        Node<T> *node_to_delete = temp->next;
+                        temp->next = node_to_delete->next;
+                        if(node_to_delete->next==nullptr)
+                            tail=temp;
+                        delete node_to_delete;
+                        Size--;
+                        break;
+                    }
+                    temp=temp->next;
+                    i++;
+                }
+            }
         }
     }
 
@@ -197,8 +243,8 @@ int main()
     SLL.Add('c');
     SLL.Add('d');
     SLL.DisplayAll();
-    SLL.DisplayKthToLastNode(0);
-    SLL.DisplayKthToLastNode(1);
+    cout<<SLL.GetKthToLastNode(0)<<endl;
+    cout<<SLL.GetKthToLastNode(1)<<endl;
     SLL.Delete('b');
     SLL.DisplayAll();
     SLL.AddAt('x',1);
@@ -208,7 +254,26 @@ int main()
     SLL.Delete('a');
     SLL.Add('z');
     SLL.DisplayAll();
-    SLL.DisplayKthToLastNode(2);
+    cout<<SLL.GetKthToLastNode(2)<<endl;
+
+    SinglyLinkedList<char> SLL2 = SLL; //this uses the copy constructor
+    cout<<"\nSLL2=SLL: ";
+    SLL2.DisplayAll();
+    SLL.Add('m');
+    cout<<"SLL+m: ";
+    SLL.DisplayAll();
+    cout<<"SLL2(SLL+m): ";
+    SLL2.DisplayAll();
+
+    SinglyLinkedList<char> SLL3;
+    SLL3 = SLL2; //this uses the overloaded assignment operator
+    cout<<"SLL3=SLL2: ";
+    SLL3.DisplayAll();
+    SLL3.Add('2');
+    cout<<"SLL3+2: ";
+    SLL3.DisplayAll();
+    cout<<"SLL2(SLL3+2): ";
+    SLL2.DisplayAll();
 
     return 0;
 }
