@@ -1,13 +1,25 @@
 #include <iostream>
 #include <vector>
+#include <ctype.h>
+#include <algorithm>
 using namespace std;
-
-bool anagrams_caseSensitive (string & s1, string & s2){
+/*
+Possible solutions
+option 1 )
+  order the letters in the word. and compare
+  cost : O(nlogn)
+option 2 )
+  count characters (128 or 256?
+  cost : O (n)
+  )
+*/
+bool anagrams_caseSensitive (const string & s1, const string & s2){
   // Compare lengths. If they are not the same, return false.
   if (s1.size() != s2.size()) return false;
 
-  // Create a vector of the size of the ascii table.
-  std::vector<int> counts(128);
+  // Create a vector of the size of the EXTENDED ascii table.
+
+  std::vector<int> counts(256);
 
   // For each of the characters in the strings
   for (int i=0; i<s1.size(); i++){
@@ -32,36 +44,17 @@ bool anagrams_caseSensitive (string & s1, string & s2){
 bool anagrams_caseInsensitive (string & s1, string & s2){
 
   //Create the equivalent low caps strings for each string
-  string lowCaps_s1 = "";
-  string lowCaps_s2 = "";
+  std::transform(s1.begin(), s1.end(), s1.begin(), ::tolower);
+  std::transform(s2.begin(), s2.end(), s2.begin(), ::tolower);
 
-//for each character in string 1
-  for (int i=0; i<s1.size(); ++i){
-    //if it is a mayus letter
-    if (s1[i]>='A' && s1[i]<='Z'){
-      //append the equivalent lower letter
-      lowCaps_s1.append(1,s1[i]-('A'-'a'));
-    }
-    else {
-      //directly append the value
-      lowCaps_s1.append(1,s1[i]);
-    }
-  }
-  for (int i=0; i<s2.size(); ++i){
-    if (s2[i]>='A' && s2[i]<='Z'){
-      lowCaps_s2.append(1,s2[i]-('A'-'a'));
-    }
-    else {
-      lowCaps_s2.append(1,s2[i]);
-    }
-  }
-
-  return anagrams_caseSensitive(lowCaps_s1,lowCaps_s2);
+  return anagrams_caseSensitive(s1,s2);
 }
 int main (){
   string s1, s2;
-  cout<<"Enter two strings"<<endl;
-  cin>>s1>>s2;
+  cout<<"Enter two strings (one in each line)"<<endl;
+
+  getline(cin,s1);
+  getline(cin,s2);
   if (anagrams_caseSensitive(s1,s2)){
     cout<<"These strings are anagrams!"<<endl;
   }
