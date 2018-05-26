@@ -1,40 +1,57 @@
 
+
 #include <iostream>
-#define LEN 'z' -'a' +1
+#include<vector>
 using namespace std;
 
 /*anagram words */
 //My assumption:the words alphabet is english letters.    
 
 
-
-char lowerIt(char c){
-    if(c>='a' && c<='z'){
-        return c;
-    }
-    return 'a' + c-'A';
-}
 //---------------------------------------------------------------------------------------------------------
 /*A function that determines if two strings are anagrams ,
-	able to handle both case sensitive and case insensitive anagrams */
-bool areAnagrams(string s1, string s2){
+	able to handle both case sensitive and case insensitive anagrams,
+	according to value of caseSensetive flag variable */
+bool areAnagrams(string s1, string s2, bool caseSensetive){
+    const int LEN= 'z' -'a' +1;
+
     if(s1.size()!= s2.size()){
         return false;
     }
-    int histogram[LEN];
-    for(int i=0;i<LEN;i++){
-        histogram[i]=0;
+    vector<int> histogram(LEN*2,0);
+    for(char c: s1){
+        if((c <'a' || c> 'z') && (c <'A' || c> 'Z')){
+            return false;
+        }
+        if(!caseSensetive){
+            char lowerLetter=tolower(c);
+            histogram[lowerLetter - 'a']++;
+            continue;
+        }
+        if(c <='a' && c>='z'){
+            histogram[c - 'a']++;
+        }else{
+           histogram[c - 'A'+ LEN]++; 
+        }
     }
-    for(int i=0;i<s1.size();i++){
-        char lowerLetter=lowerIt(s1[i]);
-        histogram[lowerLetter - 'a']++;
-    }
-    for(int i=0;i<s2.size();i++){
-        char lowerLetter=lowerIt(s2[i]);
-        histogram[lowerLetter - 'a']--;
+    for(char c: s2){
+        if((c <'a' || c> 'z') && (c <'A' || c> 'Z')){
+            return false;
+        }
+        if(!caseSensetive){
+            char lowerLetter=tolower(c);
+            histogram[lowerLetter - 'a']--;
+            continue;
+        }
+        if(c <='a' && c>='z'){
+            histogram[c - 'a']--;
+        }else{
+           histogram[c - 'A'+ LEN]--; 
+        }
+
     } 
     
-    for(int i=0;i<LEN;i++){
+    for(int i=0;i<histogram.size();i++){
         if(histogram[i]!=0){
             return false;
         }
@@ -45,17 +62,14 @@ bool areAnagrams(string s1, string s2){
 //---------------------------------------------------------------------------------------------------------
 /*sentences anagrams*/
 //My assumption:the sentence words alphabet is english letters, delimiters between the are spaces.
-#define DEL ' ' 
+//Here are some auxiliary functions.
 int countWords(string sentence){
     if(sentence.empty()){
-        return -1;
-    }
-    int count=0;
-    if(sentence==""){
         return 0;
     }
-    for(int i=0;i< sentence.size();i++){
-        if(sentence[i]==DEL){
+    int count=0;
+    for(char c : sentence){
+        if(c==' '){
             count++;
         }
     }
@@ -71,8 +85,9 @@ string getKWord(string sentence, int k){
 
     bool startFlag=false;
     bool endFlag=false;
-    for(int i=0;i<sentence.size();i++){
-        if(sentence[i]==DEL){
+    int i=0;
+    for(char c: sentence){
+        if(c==' '){
             count++;
         }
         if(count==k-1 && !startFlag){
@@ -93,37 +108,64 @@ string getKWord(string sentence, int k){
                 break;
             }
         }
+        i++;
     }
     return sentence.substr(start,end-start+1);
 }
 
-bool areAnagarmSentences(string sen1, string sen2){
-    if(sen1.empty() || sen1.empty()){
+
+vector<string> splitIntoWords(string sentence){
+    vector<string> words=vector<string>();
+    for(int i=0;i<=countWords(sentence);i++){
+        words.push_back(getKWord(sentence,i));        
+    }
+    return words;
+}
+
+/*areAnagarmSentences: checks if the given sentences are anagrams,
+    the function handles both sensetive and insensitive cases
+    according to the caseSensetive flag value*/
+bool areAnagarmSentences(string sen1, string sen2, bool caseSensetive){
+    vector <string> sentence1=splitIntoWords(sen1);
+    vector <string> sentence2=splitIntoWords(sen2);
+    
+    if(sentence1.size()!=sentence2.size()){
         return false;
     }
-    int sen1WordsNum=countWords(sen1);
-    int sen2WordsNum=countWords(sen2);
-    if(sen1WordsNum<0 || sen2WordsNum<0){
-        return false;
-    }
-    if(sen1WordsNum!=sen2WordsNum){
-        return false;
-    }
-    for(int i=1;i<=sen1WordsNum;i++){
-        string current1=getKWord(sen1,i);
-        bool found=false;
-        for(int j=1;j<=sen2WordsNum;j++){
-            string current2=getKWord(sen2,j);
-            if(areAnagrams(current1,current2)){
-                found=true;
+    /*a histogram for every sentence, to count for each words
+    the number of anagrams in the other sentence*/
+    vector<int> counts1(sentence1.size(),0);
+    vector<int> counts2(sentence2.size(),0);
+    
+    for(int i=0;i<sentence1.size();i++){
+        for(string word2: sentence2){
+            if(areAnagrams(sentence1[i],word2,caseSensetive)){
+                counts1[i]++;
             }
         }
-        if(!found){
+    }
+    
+    for(int i=0;i<sentence2.size();i++){
+        for(string word1: sentence1){
+            if(areAnagrams(sentence2[i],word1,caseSensetive)){
+                counts2[i]++;
+            }
+        }
+    }
+    
+    /*checking for every sentence if every word
+    is an anagram of one word exactly in the other sentence*/
+    for(int c: counts1){
+        if(c!=1){
+            return false;
+        }
+    }
+    for(int c: counts2){
+        if(c!=1){
             return false;
         }
     }
     return true;
-    
 }
 
 
