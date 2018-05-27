@@ -1,126 +1,127 @@
 #include <iostream>
+#include <stdexcept>
 using namespace std;
-
+/*
+Check for loops
+Free all elements when list is destroyed
+Unique pointers
+*/
 template <class T>
 class ListNode{
   private:
-    T value;
-    ListNode * next;
+    T node_value_;
+    ListNode * node_next_;
   public:
     ListNode(){
-
-        this->next = NULL;
-
+        this->node_next_ = NULL;
     }
     ListNode(T v, ListNode * nextNode){
-      this->value = v;
-      this->next = nextNode;
+      this->node_value_ = v;
+      this->node_next_ = nextNode;
     }
 
-    T getValue(){
-      return value;
+    const T & GetValue(){
+      return this->node_value_;
     }
-    ListNode * getNext (){
-      return next;
+    ListNode * GetNext (){
+      return this->node_next_;
     }
-    void setNext (ListNode *n){
-      this->next = n;
+    void SetNext (ListNode *n){
+      this->node_next_ = n;
+      /*
+TODO
+This is a bit risky, how ca you avoid clients messing thing up?
+For example, a user can create a loop on the list, or make two different lists have converge into one, something like :
+A -> B -> C -> D
+&
+E -> C -> D
+      */
     }
-    void setValue (T v){
-      this->value = v;
+    void SetValue (T v){
+      this->node_value_ = v;
     }
 };
 template <class T>
 
 class MyList{
   private:
-    ListNode<T> *initialNode;
-    int size;
+    ListNode<T> *list_initial_node_;
+    int list_size_;
   public:
     MyList(){
-      cout<<"New list created"<<endl;
     }
     MyList(ListNode<T> *init){
-      this->initialNode=init;
-      if (init!=NULL){
-
-        ListNode<T>* curr;
-        curr = init->getNext();
-
-        this->size = 1;
-        while (curr!=NULL){
-          this->size++;
-          curr = curr->getNext();
-        }
-        //cout<<"Size is "<<this->size<<endl;
-
-      }//cout<<"New list created"<<endl;
+      this->list_initial_node_=init;
+      this->list_size_ = RecalculateSize();
 
     }
 
-    T getInitialNode(){
-      return this->initialNode;
+    const T & GetInitialNode(){
+      return this->list_initial_node_;
     }
-    int getSize(){
-      return this->size;
+    int GetSize(){
+      return this->list_size_;
     }
-    void printList (){
-      ListNode<T> *current = this->initialNode;
+    void PrintList (){
+      ListNode<T> *current = this->list_initial_node_;
       while (current!=NULL){
-          cout<<current->getValue()<<" ";
-          current = current->getNext();
+          cout<<current->GetValue()<<" ";
+          current = current->GetNext();
       }
       cout<<endl;
     }
-    int recalculateSize(){ //probably not used
-      ListNode<T> *current = this->initialNode;
-      this->size = 0;
+    
+    int RecalculateSize(){
+      ListNode<T> *current = this->list_initial_node_;
+      this->list_size_ = 0;
       while (current!=NULL){
-        this-> size ++;
-        current = current->getNext();
+        this-> list_size_ ++;
+        current = current->GetNext();
       }
-      return this->size;
+      return this->list_size_;
     }
-    T kth_to_last(int k){
-      //assume that size is correctly calculated.
-      int itemPosition = this->size-k;
-      if (itemPosition<0){
-        cout<<"The value "<<k<<" is larger than the list"<<endl;
-        return -1;
+    const T & KthToLast(int k){
+      if (k<0){
+        throw invalid_argument("k is negative");
       }
-      else {
+      int itemPosition = this->list_size_-k;
+      if (itemPosition<=0){
+        throw invalid_argument("k is larger than the list ");
+      } else {
 
-        ListNode<T> *currentNode = this->initialNode;
+        ListNode<T> *current_node = this->list_initial_node_;
         for (int i = 0; i<itemPosition-1; ++i){
-          currentNode = currentNode->getNext();
+          current_node = current_node->GetNext();
         }
-        return currentNode->getValue();
+        return current_node->GetValue();
 
       }
     }
 };
-void runTest(int k, int n);
+void RunTest(int k, int n);
 int main (){
-  runTest(13, 20);
+  for (int i =0; i<20;++i){
+    RunTest(i,20);
+  }
 }
-void runTest(int k, int n){
+void RunTest(int k, int n){
   ListNode<int> *initial = new ListNode<int>;
   ListNode<int> *current = new ListNode<int>;
 
-  initial->setValue(0);
-  initial->setNext(current);
-  current->setValue(1);
+  initial->SetValue(0);
+  initial->SetNext(current);
+  current->SetValue(1);
 
   for (int i=2; i<n; ++i){
     ListNode<int>*newNode = new ListNode<int>;
-    newNode->setValue(i);
-    current->setNext(newNode);
+    newNode->SetValue(i);
+    current->SetNext(newNode);
     current = newNode;
   }
   MyList<int> l (initial);
-  cout<<"The list is:"<<endl;
-  l.printList();
+  //cout<<"The list is:"<<endl;
+  //l.PrintList();
   cout<<"The "<<k<<"-th to last element is"<<endl;
-  cout<<l.kth_to_last(k)<<endl;
+  cout<<l.KthToLast(k)<<endl;
 
 }
