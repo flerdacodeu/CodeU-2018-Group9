@@ -35,8 +35,7 @@ class linkedlist {
 
 
 public:
-    linkedlist() : head(NULL), tail(NULL), listsize(0) {} //first constructor
-    linkedlist(Node *newnode) : head(newnode), tail(newnode), listsize(1) {} //second constructor
+    linkedlist() : head(nullptr), tail(nullptr), listsize(0) {} //first constructor
     ~linkedlist(); //destructor
     const int& size() {return listsize;}
     bool empty() {return listsize==0;}
@@ -53,7 +52,7 @@ public:
 template<class T>
 linkedlist<T>::~linkedlist(){
     Node *ptr=head, *temp;
-    while(ptr!=NULL){
+    while(ptr!=nullptr){
         temp=ptr;
         ptr=ptr->next;
         delete temp;
@@ -77,7 +76,7 @@ T linkedlist<T>::back(){
 template<class T>
 void linkedlist<T>::push_front(const T& input){
 
-    Node *newnode= new Node(input,head);
+    Node *newnode = new Node(input,head);
     head=newnode;
     if(listsize==0)
         tail=head;
@@ -94,13 +93,16 @@ void linkedlist<T>::pop_front(){
     head=head->next;
     delete temp;
     listsize--;
+    if(listsize == 0){
+        tail = nullptr;
+    }
     return;
 }
 
 template<class T>
 void linkedlist<T>::push_back(const T& input){
-    Node *newnode= new Node(input,NULL);
-    if(tail!=NULL)
+    Node *newnode= new Node(input,nullptr);
+    if(tail!=nullptr)
         tail->next=newnode;
     tail=newnode;
     if(listsize==0) head=tail;
@@ -120,10 +122,10 @@ void linkedlist<T>::pop_back(){
         pop_front();
 
     else{
-        while(temp->next->next!=NULL){
+        while(temp->next->next!=nullptr){
             temp=temp->next;
         }
-        temp->next=NULL;
+        temp->next=nullptr;
         delete tail;
         tail=temp;
         listsize--;
@@ -142,7 +144,7 @@ T linkedlist<T>::kth_to_last(const int& k){
     for(int i=0; i<k; i++) {
         runner=runner->next;
     }
-    while(runner->next!=NULL){
+    while(runner->next!=nullptr){
         ptr=ptr->next;
         runner=runner->next;
     }
@@ -152,16 +154,18 @@ T linkedlist<T>::kth_to_last(const int& k){
 template<class T>
 void linkedlist<T>::print(){
     Node *ptr=head;
-    while(ptr!=NULL){
+    while(ptr!=nullptr){
         cout << ptr->data << " ";
         ptr=ptr->next;
     }
+    cout << endl;
     return;
 }
 
 
 int main()
 {
+
 
     // test
     linkedlist<int> ll;
@@ -170,7 +174,7 @@ int main()
     ll.push_back(2);
     ll.push_back(4);
     ll.print();
-    cout << endl << ll.kth_to_last(0) << " " << ll.kth_to_last(1) <<  " "  << ll.kth_to_last(2)<< " " << ll.kth_to_last(3)<<  endl;
+    cout << ll.kth_to_last(0) << " " << ll.kth_to_last(1) <<  " "  << ll.kth_to_last(2)<< " " << ll.kth_to_last(3)<<  endl;
     cout << ll.kth_to_last(4)<<endl;
     cout << ll.kth_to_last(-1)<<endl;
 
