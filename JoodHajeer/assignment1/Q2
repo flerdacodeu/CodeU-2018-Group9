@@ -32,6 +32,7 @@ class SLList {
 	//I have implemented only the list functions the algorithm needs.
 public:
 	SLList();
+	SLList(const SLList <T> &copy_from);
 	~SLList();
 	bool IsEmpty();
 	void addToTail(T&VAL);
@@ -45,6 +46,17 @@ private:
 template <class T>
 SLList<T> ::SLList() {
 	head = tail = nullptr;
+}
+template <class T>
+SLList<T> ::SLList(const SLList<T> & copy_from) {
+	head = tail = nullptr;
+	if (copy_from.head == nullptr)
+		return;
+	SLLNode<T> * current_node = copy_from.head;
+	while (current_node != nullptr) {
+		this->addToTail(current_node->val);
+		current_node = current_node->next;
+	}	
 }
 template <class T>
 SLList<T> :: ~SLList() {
@@ -101,7 +113,11 @@ int main() {
 		list.addToTail(i);
 	for (int i = 0; i <= 10; i++) 
 		cout << list.findElementToLast(i) << " ";
-
+	cout << endl;
+	SLList<int> list2 = list; 
+	for (int i = 0; i <= 10; i++)
+		cout << list2.findElementToLast(i) << " ";
+	cout << endl;
 	return 0;
 }
 
