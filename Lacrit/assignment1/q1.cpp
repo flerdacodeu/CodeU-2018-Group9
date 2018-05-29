@@ -1,31 +1,27 @@
 #include <iostream>
 #include <unordered_map>
 #include <boost/algorithm/string.hpp>
-
-
-// input : string a , string b || output : bool 
-// determine if one is an anagram of another 
 	
-std::unordered_map<char, int> count_occurences(std::string& a, const bool c)
+std::unordered_map<char, int> count_occurences_word(std::string& str, const bool isCaseSensitive)
 {
 	//case insensitive
-	if (!c)
-		boost::algorithm::to_lower(a);	
+	if (!isCaseSensitive)
+		boost::algorithm::to_lower(str);	
 		
 	//to store letter frequency in the first string
 	std::unordered_map<char,int> count;
 
 	//count char occurences
-	for (size_t i = 0; i < a.length(); i++)
-			count[a[i]]++;
+	for (char c : str) 
+			count[c]++;
 	return count;
 }	
 
 //technically o(n) but function is called twice which can be avoided 
 //TODO: make one map for the first string=> compare frequency of a map with every character from another string
-bool isAnagram( std::string& a, std::string& b, const bool c)
+bool isAnagram( std::string& f_str, std::string& s_str, const bool isCaseSensitive)
 {
-	return count_occurences(a, c)==count_occurences(b, c);	
+	return count_occurences_word(f_str, isCaseSensitive)==count_occurences_word(s_str, isCaseSensitive);	
 }
 
 void remove_spaces(std::string& str) 
@@ -37,13 +33,22 @@ void remove_spaces(std::string& str)
 int main() 
 {
 	std::string a, b;
-	bool c; 
+	char case_sensitive; 
+	std::cout << "Input first string: " << std::endl;
 	std::getline(std::cin, a);
+	std::cout << "Input second string: " << std::endl;
 	std::getline(std::cin, b);
-	remove_spaces(a);
-	remove_spaces(b);
-	std::cin >> c;
-	std::cout << isAnagram(a, b, c) << std::endl;
+	std::cout << "Case Sensitive?(c|i) (c => sensitive || i => insensitive)" << std::endl;
+	std::cin >> case_sensitive;
+	const std::string word = "Words aren`t anagrams";
+		remove_spaces(a);
+		remove_spaces(b);	
+		if (a.length() == b.length())
+		{
+	   	    bool res = isAnagram(a, b, case_sensitive);
+			if(res) std::cout << "Words are anagrams" << std::endl;
+			else std::cout << word << std::endl;
+		} else std::cout << word << std::endl;
 	return 0;
 }
 
