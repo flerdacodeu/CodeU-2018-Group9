@@ -1,11 +1,40 @@
 
-
 #include <iostream>
 #include<vector>
 using namespace std;
 
 /*anagram words */
 //My assumption:the words alphabet is english letters.    
+
+
+/*auxiliary function for updating the given histogram, according to the value of the flag add
+  increments the counters if its true and decrements them otherwise*/
+bool updateHistogram(vector<int>& histogram,string word,bool add, bool caseSensetive){
+     const int LEN= 'z' -'a' +1;
+    int factor=0;
+    if(add){
+        factor=1;
+    }else{
+        factor=-1;
+    }
+    for(char c: word){
+        if((c <'a' || c> 'z') && (c <'A' || c> 'Z')){
+            return false;
+        }
+        if(!caseSensetive){
+            char lowerLetter=tolower(c);
+            histogram[lowerLetter - 'a']+=factor;
+            continue;
+        }
+        if(c <='a' && c>='z'){
+            histogram[c - 'a']+=factor;
+        }else{
+           histogram[c - 'A'+ LEN]+=factor; 
+        }
+    }
+    return true;
+}
+
 
 
 //---------------------------------------------------------------------------------------------------------
@@ -19,38 +48,13 @@ bool areAnagrams(string s1, string s2, bool caseSensetive){
         return false;
     }
     vector<int> histogram(LEN*2,0);
-    for(char c: s1){
-        if((c <'a' || c> 'z') && (c <'A' || c> 'Z')){
-            return false;
-        }
-        if(!caseSensetive){
-            char lowerLetter=tolower(c);
-            histogram[lowerLetter - 'a']++;
-            continue;
-        }
-        if(c <='a' && c>='z'){
-            histogram[c - 'a']++;
-        }else{
-           histogram[c - 'A'+ LEN]++; 
-        }
+    if(!updateHistogram(histogram,s1,true,caseSensetive)){
+        return false;
     }
-    for(char c: s2){
-        if((c <'a' || c> 'z') && (c <'A' || c> 'Z')){
-            return false;
-        }
-        if(!caseSensetive){
-            char lowerLetter=tolower(c);
-            histogram[lowerLetter - 'a']--;
-            continue;
-        }
-        if(c <='a' && c>='z'){
-            histogram[c - 'a']--;
-        }else{
-           histogram[c - 'A'+ LEN]--; 
-        }
+    if(!updateHistogram(histogram,s2,false,caseSensetive)){
+        return false; 
+    }
 
-    } 
-    
     for(int i=0;i<histogram.size();i++){
         if(histogram[i]!=0){
             return false;
@@ -79,7 +83,7 @@ int countWords(string sentence){
 string getKWord(string sentence, int k){
     int start, end,count=0;
     int wordsNum=countWords(sentence);
-    if(k<=0 || sentence.empty() || sentence== ""){
+    if(k<=0 || sentence.empty()){
         return "";
     }
 
@@ -167,5 +171,6 @@ bool areAnagarmSentences(string sen1, string sen2, bool caseSensetive){
     }
     return true;
 }
+
 
 
