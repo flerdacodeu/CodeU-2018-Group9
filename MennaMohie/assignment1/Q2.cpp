@@ -29,7 +29,7 @@ public:
     SinglyLinkedList():head(nullptr),tail(nullptr),Size(0) {}
     SinglyLinkedList(const SinglyLinkedList<T> &SLL)
     {
-        this->Size = SLL.Size;
+        Size = SLL.Size;
 
         if(SLL.head==nullptr)
         {
@@ -78,7 +78,7 @@ public:
 
     T GetKthToLastNode(int k)
     {
-        if(k>=0 && k<Size);
+        if(k>=0 && k<Size)
         {
             int pos=Size-k-1;
             return(GetAt(pos));
