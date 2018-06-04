@@ -14,6 +14,8 @@ class Node
 public:
     Node():left(nullptr),right(nullptr) {}
     Node(T val):left(nullptr),right(nullptr),value(val) {}
+
+    T getValue(){return value;}
 };
 
 template<class T>
@@ -126,6 +128,25 @@ public:
 
         return (foundInLeft || foundInRight);
     }
+
+    Node<T> * leastCommonAncestor(Node<T> *currentRoot, T val1, T val2)
+    {
+        if(!contains(root,val1) || !contains(root, val2) || currentRoot==nullptr)
+            return nullptr;
+        if (currentRoot->value == val1 || currentRoot->value == val2)
+            return currentRoot;
+        Node<T> *left = leastCommonAncestor(currentRoot->left, val1, val2);
+        Node<T> *right = leastCommonAncestor(currentRoot->right, val1, val2);
+        if(left==nullptr && right==nullptr)
+            return nullptr;
+        if(left!=nullptr && right!=nullptr)
+            return currentRoot;
+        if(left!=nullptr)
+            return left;
+        else
+            return right;
+
+    }
 };
 
 int main()
@@ -141,6 +162,13 @@ int main()
     tree.addAsRightChild(tree.getRoot(), 8, 9);
 
     tree.printAncestors(tree.getRoot(), 9);
+    cout<<endl;
+
+    Node<int> * LCA = tree.leastCommonAncestor(tree.getRoot(), 5, 4);
+    cout<<"LCA of 5 and 4: "<<LCA->getValue()<<endl;
+    LCA = tree.leastCommonAncestor(tree.getRoot(), 7, 2);
+    cout<<"LCA of 7 and 2: "<<LCA->getValue()<<endl;
+
 
     return 0;
 }
