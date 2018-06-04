@@ -22,12 +22,7 @@ int main()
         cout<<"Please type 's' for Case Sensitive Anagram Checking or 'i' for Case Insensitive Anagram Checking: ";
         cin>>sensitivity;
 
-        bool caseSensitive;
-        sensitivity=tolower(sensitivity);
-        if(sensitivity=='i')
-            caseSensitive=false;
-        else if (sensitivity=='s')
-            caseSensitive=true;
+        bool caseSensitive = (tolower(sensitivity) == 's');
 
         bool areAnagrams = anagramWordCheck(word1, word2, caseSensitive);
         cout<<(areAnagrams?"The two words are anagrams.":"The two words are not anagrams.");
