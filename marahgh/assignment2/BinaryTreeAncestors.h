@@ -3,6 +3,11 @@
 #include <algorithm>
 
 using namespace std;
+
+/*enum used basically* for insert method
+ to choose in which son will the element be inserted*/
+enum Son { Left, Right };
+
 /*The Binary Tree class,it has no duplicate values */
 template <typename S>
 class BinaryTree {
@@ -19,18 +24,24 @@ class BinaryTree {
     /*Node's constructor */
     Node(T data) : data(data), left(nullptr), right(nullptr) {}
 
-    /*Inserts a node as the right son of this node*/
+    /*Inserts a node as the right son of this node,
+    the method checks if the right son of the node
+    is already occuupied by another element and only if it's not
+    the method inserts the node and returns true,otherwise returns false*/
     bool insertRight(Node<T>* node) {
-      if (right) {
+      if (right != nullptr) {
         return false;
       }
       right = node;
       return true;
     }
 
-    /*Inserts a node as the right son of this node*/
+    /*Inserts a node as the right son of this node
+    the method checks if the left son of the node
+    is already occuupied by another element and only if it's not
+    the method inserts the node and returns true,otherwise returns false*/
     bool insertLeft(Node<T>* node) {
-      if (left) {
+      if (left != nullptr) {
         return false;
       }
       left = node;
@@ -46,7 +57,7 @@ class BinaryTree {
 
   /*Deleting a binary Tree recursive auxiliary function*/
   void recursiveDelete(Node<S>* root) {
-    if (!root) {
+    if (root == nullptr) {
       return;
     }
     recursiveDelete(root->left);
@@ -56,51 +67,59 @@ class BinaryTree {
 
   /*an auxiliary insert recursive function of the insert method.
   returns true if insertion succeeded, flase otherwise.
-  leftOrRight is string which can be either right or left */
+  leftOrRight is an enum which can be either right or left */
   bool insertElement(Node<S>* treeRoot, Node<S>* node, S parent,
-                     string leftOrRight) {
-    if (!treeRoot) {
+                     Son leftOrRight) {
+    if (treeRoot == nullptr) {
       return false;
     }
     if (treeRoot->data == parent) {
-      if (leftOrRight == "right") {
+      if (leftOrRight == Right) {
         return treeRoot->insertRight(node);
       }
       return treeRoot->insertLeft(node);
     }
-    return (insertElement(treeRoot->left, node, parent, leftOrRight) ||
-            insertElement(treeRoot->right, node, parent, leftOrRight));
+    return insertElement(treeRoot->left, node, parent, leftOrRight) ||
+           insertElement(treeRoot->right, node, parent, leftOrRight);
   }
-  /*return true if the given key exists in the given root tree,
-  false otherwise*/
-  bool find(Node<S>* root, S key) {
+  /*return the wanted node if the given key exists in the given root tree,
+  false nullptr*/
+  Node<S>* find(Node<S>* root, S key) {
     if (!root) {
-      return false;
+      return nullptr;
     }
     if (root->data == key) {
-      return true;
+      return root;
     }
-    return (find(root->left, key)) || (find(root->right, key));
+    Node<S>* leftResult = find(root->left, key);
+    Node<S>* rightResult = find(root->right, key);
+    if ((leftResult == nullptr) && (rightResult == nullptr)) {
+      return nullptr;
+    }
+    if (leftResult != nullptr) {
+      return leftResult;
+    }
+    return rightResult;
   }
 
   /*Auxiliary recursive function of findAncestorsInTree in BinaryTree class*/
-  void findAncestors(Node<S>* root, S& key) {
-    if (!root) {
+  void findAncestors(Node<S>* root, const S& key, vector<S>& ancestors) {
+    if (root == nullptr) {
       return;
     }
     if (root->data == key) {
       return;
     }
-    if (find(root, key)) {
-      findAncestors(root->left, key);
-      findAncestors(root->right, key);
-      cout << root->data << endl;
+    if (find(root, key) != nullptr) {
+      findAncestors(root->left, key, ancestors);
+      findAncestors(root->right, key, ancestors);
+      ancestors.push_back(root->data);
     }
   }
   /*Auxiliary  recursive method,
   finds the lowest common ancestor of the given two keys*/
   Node<S>* LCA(Node<S>* treeRoot, S& key1, S& key2) {
-    if (!treeRoot) {
+    if (treeRoot == nullptr) {
       return nullptr;
     }
     if ((treeRoot->data == key1) || (treeRoot->data == key2)) {
@@ -108,18 +127,16 @@ class BinaryTree {
     }
     Node<S>* leftResult = LCA(treeRoot->left, key1, key2);
     Node<S>* rightResult = LCA(treeRoot->right, key1, key2);
-    if ((!leftResult) && (!rightResult)) {
+    if ((leftResult == nullptr) && (rightResult == nullptr)) {
       return nullptr;
     }
-    if ((leftResult) && (rightResult)) {
+    if ((leftResult != nullptr) && (rightResult != nullptr)) {
       return treeRoot;
     }
-    if (!leftResult) {
-      return rightResult;
-    } else {
+    if (leftResult != nullptr) {
       return leftResult;
     }
-    return treeRoot;
+    return rightResult;
   }
 
   /**************************************************************************/
@@ -135,15 +152,15 @@ class BinaryTree {
   ~BinaryTree() { recursiveDelete(root); }
 
   /*inserts the given key as the leftOrRight son of parent,
-  returns true if insertion succeeded, flase otherwise.*/
-  bool insert(S key, S parent, string leftOrRight) {
-    if (!root) {
+  returns true if insertion succeeded, false otherwise.*/
+  bool insert(const S& key, const S& parent, Son leftOrRight) {
+    if (root == nullptr) {
       return false;
     }
-    if (!find(root, parent) || find(root, key)) {
+    if ((find(root, parent) == nullptr) || (find(root, key) != nullptr)) {
       return false;
     }
-    if (leftOrRight != "left" && leftOrRight != "right") {
+    if (leftOrRight != Left && leftOrRight != Right) {
       return false;
     }
     Node<S>* nodeToInsert = new Node<S>(key);
@@ -154,26 +171,30 @@ class BinaryTree {
     return true;
   }
 
-  /*Prints all the ancestors of the key in the given binary tree.
-    The function recieves the root of the binart tree*/
-  void printAncestors(S key) {
-    if (!root) {
-      return;
+  /*return a vector of all the ancestors of the key in the given binary tree.
+    The function recieves the root of the binary tree*/
+  vector<S> getAncestors(S key) {
+    vector<S> ancestors = vector<S>();
+    if (root != nullptr) {
+      findAncestors(root, key, ancestors);
     }
-    findAncestors(root, key);
+    return ancestors;
   }
 
-  /*prints the lowest common ancestor of the given two keys.*/
-  void printLowestCommonAncestor(S key1, S key2) {
-    if (!root) {
-      return;
+  /*returns the lowest common ancestor of the given two keys in a vector,
+  in any case of error, or if there is no lca of the given keys,
+  the vector will be returned empty, otherwise it will contain the lca .*/
+  vector<S> lowestCommonAncestor(S key1, S key2) {
+    vector<S> lowestCommonAncestor = vector<S>();
+    if (root == nullptr) {
+      return lowestCommonAncestor;
     }
-    if (!find(root, key1) || !find(root, key2)) {
-      return;
+    if ((find(root, key1) == nullptr) || (find(root, key2) == nullptr)) {
+      return lowestCommonAncestor;
     }
     Node<S>* lca = LCA(root, key1, key2);
     if (lca) {
-      cout << lca->data << endl;
+      lowestCommonAncestor.push_back(lca->data);
     }
   }
 };
