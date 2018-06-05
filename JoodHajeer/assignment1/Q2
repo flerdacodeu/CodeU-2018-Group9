@@ -1,0 +1,127 @@
+#include <iostream>
+#include <stdio.h>  
+#include <string>
+#include <stdlib.h>
+using namespace std;
+
+template <class T>
+class SLList;
+template <class T>
+class SLLNode {
+	//Singly Linked List Node Class building block for a list
+	// A single linked list node class to store elements of a generic type T
+public:
+	SLLNode(T &VAL, SLLNode* NEXT);
+	~SLLNode();
+private:
+	T val;
+	SLLNode * next;
+	friend class SLList<T>;
+};
+template <class T>
+SLLNode<T>::SLLNode(T &VAL, SLLNode * NEXT) {
+	val = VAL;
+	next = NEXT;
+}
+template <class T>
+SLLNode<T>::~SLLNode() {}
+
+template <class T>
+class SLList {
+	//ADT single linked list class
+	//I have implemented only the list functions the algorithm needs.
+public:
+	SLList();
+	SLList(const SLList <T> &copy_from);
+	~SLList();
+	bool IsEmpty();
+	void addToTail(T&VAL);
+	void clear();
+	int size();
+	T findElementToLast(int k);
+private:
+	SLLNode<T> * head;
+	SLLNode<T> * tail;
+};
+template <class T>
+SLList<T> ::SLList() {
+	head = tail = nullptr;
+}
+template <class T>
+SLList<T> ::SLList(const SLList<T> & copy_from) {
+	head = tail = nullptr;
+	if (copy_from.head == nullptr)
+		return;
+	SLLNode<T> * current_node = copy_from.head;
+	while (current_node != nullptr) {
+		this->addToTail(current_node->val);
+		current_node = current_node->next;
+	}	
+}
+template <class T>
+SLList<T> :: ~SLList() {
+	clear();
+}
+template <class T>
+bool SLList<T> ::IsEmpty() {
+	return head == nullptr;
+}
+template <class T>
+void SLList<T> ::clear() {
+	SLLNode<T> *p;
+	p = head;
+	tail = nullptr;
+	while (p != nullptr) {
+		head = head->next;
+		delete p;
+		p = head;
+	}
+}
+template <class T>
+void SLList<T> ::addToTail(T &VAL) {
+	SLLNode<T> *p = new SLLNode<T>(VAL, nullptr);
+	if (tail == nullptr)
+		head = p;
+	else
+		tail->next = p;
+	tail = p;
+}
+template <class T>
+int SLList<T> ::size() {//computes and return the current size of the list
+	int count = 0;
+	SLLNode<T> * p;
+	for (p = head; p != nullptr; p = p->next)//empty list will not enter this loop
+		count++;
+	return count;
+}
+template <class T>
+T SLList<T> ::findElementToLast(int k) {
+	int sz = this->size();//gets the current size of the list
+	if (k < 0 || k >= sz) //handles cases when k has a wrong value or list is empty
+		exit(1);
+	k = sz - k;//kth element to last is (size-k)th element to first
+	SLLNode <T> * p = head;
+	for (int i = 1; i<k; i++)//searches for elemnt at position k to last
+		p = p->next;
+	return p->val;//return its value
+}
+int main() {
+
+	//a quick test 
+	SLList<int> list;
+	for (int i = 0; i <= 10; i++)
+		list.addToTail(i);
+	for (int i = 0; i <= 10; i++) 
+		cout << list.findElementToLast(i) << " ";
+	cout << endl;
+	SLList<int> list2 = list; 
+	for (int i = 0; i <= 10; i++)
+		cout << list2.findElementToLast(i) << " ";
+	cout << endl;
+	return 0;
+}
+
+
+
+
+
