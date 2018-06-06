@@ -1,4 +1,5 @@
 #include <vector>
+#include <iostream>
 template <class T>
 class Btree;
 
@@ -10,6 +11,8 @@ struct Node
 		Node *left; 
 		Node *right;
 		friend class Btree<T>;
+	public: 
+		T get_data() {return data;}
 };
 
 template <class T>
@@ -78,8 +81,22 @@ public:
 			return true;
 		}
 		return false;
-	}
+	};
+ 	Node<T> * least_common_ancestor(Node<T> *root, T val1, T val2)
+    {
+		// TODO: check if values are in the tree
+	    if ( root == nullptr ) return nullptr;
+        if ( root->data == val1 || root->data == val2 ) return root;
 
+        Node<T> *left = least_common_ancestor(root->left, val1, val2);
+        Node<T> *right = least_common_ancestor(root->right, val1, val2);
+
+        if( left == nullptr && right == nullptr) return nullptr;
+        if( left != nullptr && right != nullptr) return root;
+        if( left != nullptr ) return left;
+        else return right;
+
+    };	
 };
 
 	
