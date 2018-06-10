@@ -1,6 +1,8 @@
 #include<bits/stdc++.h>
 using namespace std;
 
+enum direction {addLeft, addRight};
+
 template<class T>
 class BinaryTree;
 
@@ -12,118 +14,111 @@ class Node
     friend class BinaryTree<T>;
 
 public:
-    Node():left(nullptr),right(nullptr) {}
     Node(T val):left(nullptr),right(nullptr),value(val) {}
 
-    T getValue(){return value;}
+    T getValue()
+    {
+        return value;
+    }
 };
 
 template<class T>
 class BinaryTree
 {
     Node<T> *root;
-
+    int Size;
+    add(Node<T>* currentRoot, T parentVal, T val, direction dir)
+    {
+        if(currentRoot->value==parentVal)
+        {
+            if(dir==0)
+            {
+                if(currentRoot->left==nullptr)
+                {
+                    currentRoot->left=new Node<T>(val);
+                    Size++;
+                    return true;
+                }
+                else
+                    return false;
+            }
+            if(dir==1)
+            {
+                if(currentRoot->right==nullptr)
+                {
+                    currentRoot->right=new Node<T>(val);
+                    return true;
+                }
+                else
+                    return false;
+            }
+        }
+        if(dir==0)
+        {
+            if(addChildToParent(currentRoot->left, parentVal, val, addLeft))
+                return true;
+            return addChildToParent(currentRoot->right, parentVal, val, addLeft);
+        }
+        if(dir==1)
+        {
+            if(addChildToParent(currentRoot->left, parentVal, val, addRight))
+                return true;
+            return addChildToParent(currentRoot->right, parentVal, val, addRight);
+        }
+    }
 public:
-    BinaryTree(T val):root(new Node<T>(val)) {}
+    BinaryTree(T val):root(new Node<T>(val)),Size(1) {}
 
     Node<T>* getRoot()
     {
         return root;
     }
 
-    bool contains(Node<T> *currentRoot, T val)
+    Node<T>* contains(Node<T> *currentRoot, T val)
     {
-        if(currentRoot == nullptr)
-            return false;
-        if(currentRoot->value == val)
-            return true;
-        return (contains(currentRoot->left, val) || contains(currentRoot->right, val));
+        if(currentRoot==nullptr || currentRoot->value==val)
+            return currentRoot;
+        Node<T> *leftSide = contains(currentRoot->left, val);
+        Node<T> *rightSide = contains(currentRoot->right, val);
+        return (leftSide==nullptr?rightSide:leftSide);
     }
 
-    bool resetRoot(T val)
-    {
-        if(root==nullptr)
-        {
-            root=new Node<T>(val);
-            return true;
-        }
-        else if(!contains(root, val))
-        {
-            root->value=val;
-            return true;
-        }
-        else
-            return false;
-    }
-
-    //adds a new node (val) as a left child to an existing node (parentVal)
-    bool addAsLeftChild(Node<T> *currentRoot, T parentVal, T val)
+    //adds a new node (val) as a left/right child (depends on dir) to an existing node (parentVal)
+    bool addChildToParent(Node<T> *currentRoot, T parentVal, T val, direction dir)
     {
         if(!contains(root, parentVal) || contains(root, val) || currentRoot==nullptr)
             return false;
-        if(currentRoot->value==parentVal)
-        {
-            if(currentRoot->left==nullptr)
-            {
-                currentRoot->left=new Node<T>(val);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        if(addAsLeftChild(currentRoot->left, parentVal, val))
-            return true;
-        return addAsLeftChild(currentRoot->right, parentVal, val);
-
-    }
-
-    bool addAsRightChild(Node<T> *currentRoot, T parentVal, T val)
-    {
-        if(!contains(root, parentVal) || contains(root, val) || currentRoot==nullptr)
-            return false;
-        if(currentRoot->value==parentVal)
-        {
-            if(currentRoot->right==nullptr)
-            {
-                currentRoot->right=new Node<T>(val);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        if(addAsRightChild(currentRoot->left, parentVal, val))
-            return true;
         else
-            return addAsRightChild(currentRoot->right, parentVal, val);
-
+            add(currentRoot, parentVal, val, dir);
     }
 
-    void traverse(Node<T> *currentRoot)
+    void traverse(Node<T> *currentRoot, string indentation="")
     {
         if(currentRoot==nullptr)
+        {
+            cout<<indentation<<'*'<<endl;
             return;
-        cout<<currentRoot->value<<endl;
-        traverse(currentRoot->left);
-        traverse(currentRoot->right);
+        }
+        cout<<indentation<<currentRoot->value<<endl;
+        traverse(currentRoot->left,indentation+" ");
+        traverse(currentRoot->right,indentation+" ");
     }
 
-    bool printAncestors(Node<T> *currentRoot, T val)
+    bool getAncestors(Node<T> *currentRoot, T val, vector<T>& path)
     {
+        path.clear();
+
         if(currentRoot==nullptr)
             return false;
 
         if(currentRoot->value==val)
             return true;
 
-        bool foundInLeft = printAncestors(currentRoot->left, val);
-        bool foundInRight = printAncestors(currentRoot->right, val);
+        bool foundInLeft = getAncestors(currentRoot->left, val, path);
+        bool foundInRight = getAncestors(currentRoot->right, val, path);
         if(foundInLeft || foundInRight)
         {
-            cout<<currentRoot->value<<endl;
+            path.push_back(currentRoot->value);
         }
 
         return (foundInLeft || foundInRight);
@@ -152,22 +147,40 @@ public:
 int main()
 {
     BinaryTree<int> tree(1);
-    tree.addAsLeftChild(tree.getRoot(), 1, 2);
-    tree.addAsRightChild(tree.getRoot(), 1, 3);
-    tree.addAsLeftChild(tree.getRoot(), 2, 4);
-    tree.addAsRightChild(tree.getRoot(), 2, 5);
-    tree.addAsLeftChild(tree.getRoot(), 3, 6);
-    tree.addAsRightChild(tree.getRoot(), 3, 7);
-    tree.addAsLeftChild(tree.getRoot(), 7, 8);
-    tree.addAsRightChild(tree.getRoot(), 8, 9);
+    tree.addChildToParent(tree.getRoot(), 1, 2, addLeft);
+    tree.addChildToParent(tree.getRoot(), 1, 3, addRight);
+    tree.addChildToParent(tree.getRoot(), 2, 4, addLeft);
+    tree.addChildToParent(tree.getRoot(), 2, 5, addRight);
+    tree.addChildToParent(tree.getRoot(), 3, 6, addLeft);
+    tree.addChildToParent(tree.getRoot(), 3, 7, addRight);
+    tree.addChildToParent(tree.getRoot(), 7, 8, addLeft);
+    tree.addChildToParent(tree.getRoot(), 8, 9, addRight);
 
-    tree.printAncestors(tree.getRoot(), 9);
-    cout<<endl;
+    tree.traverse(tree.getRoot());
+
+    vector<int> ancestors;
+    if(tree.getAncestors(tree.getRoot(), 9, ancestors))
+    {
+        cout<<"Ancestors of 9: ";
+        for(int ancestor : ancestors)
+            cout<<ancestor<<' ';
+        cout<<endl;
+    }
+
+    if(tree.getAncestors(tree.getRoot(), 6, ancestors))
+    {
+        cout<<"Ancestors of 6: ";
+        for(int ancestor : ancestors)
+            cout<<ancestor<<' ';
+        cout<<endl;
+    }
 
     Node<int> * LCA = tree.leastCommonAncestor(tree.getRoot(), 5, 4);
     cout<<"LCA of 5 and 4: "<<LCA->getValue()<<endl;
     LCA = tree.leastCommonAncestor(tree.getRoot(), 7, 2);
     cout<<"LCA of 7 and 2: "<<LCA->getValue()<<endl;
+    LCA = tree.leastCommonAncestor(tree.getRoot(), 9, 8);
+    cout<<"LCA of 9 and 8: "<<LCA->getValue()<<endl;
 
 
     return 0;
