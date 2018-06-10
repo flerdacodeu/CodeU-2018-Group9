@@ -13,8 +13,8 @@ class BTNode {
 	//Binary tree Node Class building block for a BT
 	// A BT node class to store elements of a generic type T
 public:
-	BTNode(T &VAL, BTNode * LEFT = nullptr, BTNode * RIGHT = nullptr, BTNode * PARENT = nullptr, int DEPTH = -1);
-	~BTNode();
+	BTNode(T &VAL, BTNode * LEFT = nullptr, BTNode * RIGHT = nullptr, BTNode * PARENT = nullptr, int DEPTH = -1) : val(VAL), left(LEFT), right(RIGHT), parent(PARENT), depth(DEPTH) {};
+	~BTNode() {};
 private:
 	T val;
 	BTNode * left;
@@ -24,76 +24,35 @@ private:
 	friend class Binary_Tree<T>;
 };
 template <class T>
-BTNode<T>::BTNode(T &VAL, BTNode * LEFT = nullptr, BTNode * RIGHT = nullptr, BTNode * PARENT = nullptr, int DEPTH = -1){
-	val = VAL;
-	left = LEFT;
-	right = RIGHT;
-	parent = PARENT;
-	depth = DEPTH;
-}
-template <class T>
-BTNode<T>::~BTNode() {}
-
-template <class T>
 class Binary_Tree{
 public:
 	Binary_Tree();
-	Binary_Tree( Binary_Tree <T> &copy_from);
+	Binary_Tree(const Binary_Tree <T> &copy_from);
 	~Binary_Tree();
-	bool insert(T &VAL);
+	void insert(T &VAL); //insert at first available position  level order
+	bool insert( T &VAL, T& parent_, char child_); //insert left or right child to a chosen parent
+	bool insertRoot( T &VAL);
 	bool empty();
 	void clear(); 
-	bool find(T & VAL);
-	void printAncestors(T & VAL);
-	pair<bool, T> commonAncestor(T & NODE1, T & NODE2);
+	bool find( T & VAL);
+	bool getAncestors( T & VAL, vector<T> & ancestors);
+	bool commonAncestor( T & NODE1,  T & NODE2, T& firstCommonAncestor);
 private:
 	BTNode<T> * root;
-	BTNode<T> * getRoot();
-	void computeDepth(BTNode<T> * );
 	void clear(BTNode<T>* node); //private clear don't want the user to mess the root
 	BTNode<T> * find(T & VAL, BTNode<T> *);
-	BTNode<T> * findAvailableParent();
 };
 template <class T>
 Binary_Tree<T> ::Binary_Tree() {
 	root = nullptr;
 }
 template <class T>
-BTNode<T> * Binary_Tree<T> ::getRoot() {
-	return root;
-}
-template <class T>
-Binary_Tree<T> ::Binary_Tree( Binary_Tree<T> & copy_from) {
-	BTNode<T> * currentNode = copy_from.getRoot();
-	root = nullptr;
-	if (!currentNode)
-		return;
-	queue <BTNode<T> *> nodes;
-	nodes.push(currentNode);
-	while (!nodes.empty()) {
-		currentNode = nodes.front();
-		nodes.pop();
-		this->insert(currentNode->val);
-		if(currentNode->left)
-			nodes.push(currentNode->left);
-		if(currentNode->right)
-			nodes.push(currentNode->right);
-	}
+Binary_Tree<T> ::Binary_Tree(const Binary_Tree<T> & copy_from) {
+	//	left empty, asked for a clarification on Slack :)
 }
 template <class T>
 Binary_Tree<T> :: ~Binary_Tree() {
 	clear();
-}
-template <class T>
-void Binary_Tree<T> ::computeDepth(BTNode<T> * node) { //compute depth (distance from root) using depth first pre-order traverse
-	if (!node) 
-		return;
-	if (node == root)
-		node->depth = 0;
-	else
-		node->depth = node->parent->depth + 1;
-	computeDepth(node->left);
-	computeDepth(node->right);
 }
 template <class T>
 bool Binary_Tree<T> ::empty() {
@@ -112,141 +71,156 @@ void Binary_Tree<T> ::clear( BTNode<T>* node) { // post-order traverese to delet
 	clear(node->right);
 	delete node;
 }
+
 template <class T>
-BTNode<T> * Binary_Tree<T> ::findAvailableParent() {// find first available parent in level order using breadth first traverese
-	if (empty())
-		return nullptr;
-	queue <BTNode<T> *> parents;
-	BTNode<T> * currentNode = root;
-	parents.push(currentNode);
-	while (!parents.empty()) {
-		currentNode = parents.front();
-		parents.pop();
-		if (!currentNode->left  || !currentNode->right) //found an availabe parent
-			return currentNode;
-		parents.push(currentNode->left);
-		parents.push(currentNode->right);
-	}
-}
-template <class T>
-bool Binary_Tree<T> ::find(T &VAL) {//check if value already exists in the tree
+bool Binary_Tree<T> ::find( T &VAL) {//check if value already exists in the tree
 	return find(VAL, root)!=nullptr;
 }
 template <class T>
 BTNode<T> * Binary_Tree<T> ::find(T &VAL, BTNode<T> * node) {//return a pointer to the node with val if exists
-	if (!node)
+	if (node == nullptr)
 		return nullptr;
 	if (node->val == VAL)
 		return node;
 	BTNode<T> * leftSide = find(VAL, node->left);
-	BTNode<T> * rightSide = find(VAL, node->right);
-	if (leftSide)
+	if (leftSide != nullptr)
 		return leftSide;
+	BTNode<T> * rightSide = find(VAL, node->right);
 	return rightSide;
 }
 template <class T>
-bool Binary_Tree<T> :: insert(T &VAL) {//insert only unique values
+bool Binary_Tree<T> :: insert( T &VAL,  T & parent_, char child_) {//insert node to a non-empty tree
+	//insert only unique values , child_ tells left or right child
 	if (find(VAL))//value already exist in the tree, do not insert it
 		return false;
-	BTNode<T> * prevNode = findAvailableParent();
-	BTNode<T> * newNode = new BTNode<T>(VAL, nullptr, nullptr, prevNode , -1); //val, left, right, patent, depth
-	if (!prevNode) {
-		root = newNode;
-		return true;
-	}
-	newNode->parent = prevNode;
-	if (!prevNode->left)
+	BTNode<T> * prevNode = find(parent_ , root);
+	if (prevNode == nullptr)//parent node was not found, or tree is empty
+		return false; 
+	if (prevNode->left != nullptr && child_ == 'L') //parent already has a left child
+		return false;
+	if (prevNode->right != nullptr && child_ == 'R')//parent already has a right child
+		return false;
+	BTNode<T> * newNode = new BTNode<T>(VAL, nullptr, nullptr, prevNode , prevNode->depth+1); //val, left, right, patent, new depth
+	if (child_=='L') 
 		prevNode->left = newNode;
-	else
+	else if (child_=='R')
 		prevNode->right = newNode;
 	return true;
 }
 template <class T>
-void Binary_Tree<T> ::printAncestors(T & VAL) {//print ancestors of node starting from the root
+bool Binary_Tree<T> :: insertRoot( T &VAL) {
+	if (root != nullptr)
+		return false;
+	BTNode<T> * newNode = new BTNode<T>(VAL, nullptr, nullptr, nullptr, 0); //val, left, right, patent, depth
+	root = newNode;
+	return true;
+}
+
+template <class T>
+bool Binary_Tree<T> ::getAncestors( T & VAL, vector<T> & ancestors) {//get ancestors of node starting from the root
 	BTNode<T> * node = find(VAL, root);
-	if (!node) {//tree is empty or value not found
-		cout << "node was not found in the tree" << endl;
-		return ;
-	}
-	stack <T> ancestorsStack;//save values of ancestors 
+	if (node == nullptr) //tree is empty or value not found
+		return false;
 	node = node->parent;
-	while (node) {
-		ancestorsStack.push(node->val);
+	while (node != nullptr) {
+		ancestors.push_back(node->val);
 		node = node->parent;
 	}
-	if (ancestorsStack.empty()) {
-		cout << "node is the root of the tree" << endl;
-		return;
-	}
-	while (!ancestorsStack.empty()) {
-		T nextAncestor= ancestorsStack.top();
-		ancestorsStack.pop();
-		cout << nextAncestor << " ";
-	}
-	cout << endl;
+	return true;
 }
 template <class T>
-pair<bool,T> Binary_Tree<T> ::commonAncestor(T & VAL1, T & VAL2) { //complexity O(tree height)
+bool Binary_Tree<T> ::commonAncestor(T & VAL1,  T & VAL2, T& firstCommonAncestor) { //complexity O(tree height)
 	BTNode<T> * node1 = find(VAL1,root); //search for VAL1 in the tree and hold a pointer to the node with value VAL1
+	if (node1 == nullptr) //value1 is not in the tree
+		return false;
 	BTNode<T> * node2 = find(VAL2,root); //same for VAL2
-	if (!node1 || !node2) //one of the values is not in the tree
-		return make_pair(nullptr, VAL1);
-	computeDepth(root);
+	if (node2 == nullptr) //value2 is not in the tree
+		return false;
 	while (node1 != node2) { //move the pointer with max depth to its parent, stop when both pointers are equal, first common ancestor is found.
 		if (node1->depth >= node2->depth)
 			node1 = node1->parent;
 		else
 			node2 = node2->parent;
 	}
-	return make_pair(true, node1->val);
+	firstCommonAncestor = node1->val;
+	return true;
 }
-int main() {
-	Binary_Tree<int> myBT;
-	for(int i=1;i<=13;i++)
-		myBT.insert(i);
-	int x = 12;
-	if (!myBT.insert(x))
-		cout << "could not add "<<x<<" again" << endl;
+void fillTree(vector <int>& values,Binary_Tree<int> & myBT) {//hard-coded test case
+	/*
+						   1
+						  / \
+						 2   5
+						/ \
+					       3   4
+	*/
+	myBT.insertRoot(values[0]);
+	myBT.insert(values[1], values[0], 'L');
+	myBT.insert(values[2], values[1], 'L');
+	myBT.insert(values[3], values[1], 'R');
+	myBT.insert(values[4], values[0], 'R');
+}
+void testGetAncestors_valNotInTree(Binary_Tree<int> & myBT) {
+	int i = 7;
+	vector<int> v;
+	if (!myBT.getAncestors(i, v))
+		cout << i << " is not in tree" << endl;
 	else
-		cout<<"added "<<x<<" again!" << endl;
-	
-	x = 5;
-	if (myBT.find(x))
-		cout << "found "<<x<<endl;
-	else 
-		cout << "couldn't find "<<x << endl;
-	for (int i = 0; i <= 13; i++) {
-		cout << "Ancestors of " << i << " are :";
-		myBT.printAncestors(i);
+		cout << "error with get ancestors node not in tree case" << endl;
+}
+void testGetAncestors_valInTree(Binary_Tree<int> & myBT) {
+	int i = 4;
+	vector<int> v;
+	if (myBT.getAncestors(i, v)) {
+		cout << "ancestors of " << i << " are: ";
+		for (int i = 0; i < v.size(); i++)
+			cout << v[i] << " ";
+		cout << endl;
 	}
-	
-	x = 5;
-	int y = 8;
-	pair <bool, int> res = myBT.commonAncestor(x, y);
-	if (res.first)
-		cout << "Common Ancestor of "<<x<< " and "<<y<<" is "<< res.second << endl;
 	else
-		cout << "Common Ancestor of " << x << " and " << y << " is not found"<< endl;
-	x = 14;
-	res = myBT.commonAncestor(y, x);
-	if (res.first)
-		cout << "Common Ancestor of " << x << " and " << y << " is " << res.second << endl;
+		cout << "error with get ancestors node in tree case" << endl;
+}
+void testGetAncestors_Root(Binary_Tree<int> & myBT) {
+	int i = 1;
+	vector<int> v;
+	if (myBT.getAncestors(i, v) && !v.size())
+		cout << i << " is the root " << endl;
 	else
-		cout << "Common Ancestor of " << x << " and " << y << " is not found" << endl;
-	Binary_Tree<int> myBT2=myBT;
+		cout << "error with get ancestors node is the root case" << endl;
+}
+void testCommonAncestor_OneValueNotInTree(vector <int> & values,Binary_Tree<int> & myBT) {
+	int res;
+	int i = 7;
+	if (!myBT.commonAncestor(values[1], i, res))
+		cout <<i<< " is not in tree"<< endl;
+	else
+		cout << "error with LCA value not in tree case" << endl;
+}
+void testCommonAncestor_ValuesInTree(vector <int> & values, Binary_Tree<int> & myBT) {
+	int res;
+	if (myBT.commonAncestor(values[2], values[3], res))
+		cout <<"LCA of "<< values[2] <<" and "<< values[3] << " is "<<res << endl;
+	else
+		cout << "error with LCA values in tree case" << endl;
+}
+void testCommonAncestor_SpecialAncestorRelation(vector <int> & values, Binary_Tree<int> & myBT) {
+	int res;
+	if (myBT.commonAncestor(values[0], values[3], res))
+		cout << "LCA of " << values[0] << " and " << values[3] << " is " << res << endl;
+	else
+		cout << "error with LCA special ancestor case" << endl;
+}
 
-	myBT.clear();
-	cout << "cleared the tree" << endl;
-
-	if (myBT.empty())
-		cout << "your tree is empty" << endl;
-	else
-		cout << "your tree is NOT empty" << endl;
-	
+int main() {
+	//tried to apply testing learnt in the testing session
+	vector<int> values = { 1,2,3,4,5 };
+	Binary_Tree<int> myBT;
+	fillTree(values,myBT);
+	testGetAncestors_valNotInTree(myBT);
+	testGetAncestors_valInTree(myBT);
+	testGetAncestors_Root(myBT);
+	testCommonAncestor_OneValueNotInTree(values,myBT);
+	testCommonAncestor_ValuesInTree(values, myBT);
+	testCommonAncestor_SpecialAncestorRelation(values, myBT);
+	//Binary_Tree<int> myBT2=myBT;
 	return 0;
 }
-
-
-
-
-
