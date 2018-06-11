@@ -28,7 +28,7 @@ int main()
 	//  7
 	// | |
 	// 3 4 
-	//  | |
+	//  | 
 	//  2 5
 	//   | |
 	//   8 1
@@ -37,7 +37,7 @@ int main()
 	// ==> ancestors of 6 are 7->4->5->1 in any order (I`m doing in order of insertion)
 	// question 1
 	std::vector<int> res; // a vector to store the ancestors (not to print in the function) 
-	btree->print_ancestors(res, btree->get_root(), 6);
+	btree->print_ancestors(res, 6);
 	for ( size_t i = 0; i < res.size(); i++ )
 		if ( i == res.size()-1 ) std::cout << res.at(i) << std::endl; 
 		else std::cout << res.at(i) << "->";

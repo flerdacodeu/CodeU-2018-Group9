@@ -18,22 +18,21 @@ struct Node
 template <class T>
 class Btree 
 {
-	// I need to have a reference to a pointer, otherwise it would overide the pointer? (Please, correct me if I`m wrong here)
-	void insert(T key, Node<T> *&leaf)
+	void insert(T key, Node<T> **leaf)
 	{
-		if (leaf == nullptr) 
+		if ((*leaf) == nullptr) 
 		{
-			leaf = new Node<T>;
-			leaf->data = key; 
-			leaf->left = nullptr;
-			leaf->right = nullptr;
+			(*leaf) = new Node<T>;
+			(*leaf)->data = key; 
+			(*leaf)->left = nullptr;
+			(*leaf)->right = nullptr;
 		}
 		else 
 		{
- 			if (leaf->left == nullptr) 
-				insert(key, leaf->left);
+ 			if ((*leaf)->left == nullptr) 
+				insert(key, &((*leaf)->left));
 			else 
-				insert(key, leaf->right);
+				insert(key, &((*leaf)->right));
 		}
 	};
 	void destroy_node(Node<T> *node)
@@ -47,6 +46,23 @@ class Btree
 
 			delete node;
 	};
+	bool print_ancestors(std::vector<T>& res, Node<T> *node, T key) 
+	{
+		if ( node == nullptr ) return false;
+		if ( node->data == key ) 
+		{
+			res.clear();
+			return true;
+		} 
+
+
+		if (print_ancestors(res, node->left, key) ||  print_ancestors(res, node->right, key))
+		{
+			res.push_back(node->data);
+			return true;
+		}
+		return false;
+	}
 		
 	Node<T> *root;
 
@@ -60,27 +76,15 @@ public:
 	};
 	void insert(T key)
 	{
-		insert(key, root);
+		insert(key, &root);
 	};
 	Node<T>* get_root() 
 	{
 		return root;
 	};
-	bool print_ancestors(std::vector<T>& res, Node<T> *node, T key)
+	void print_ancestors(std::vector<T>& res, T key)
 	{
-		if ( node == nullptr ) return false;
-		if ( node->data == key ) return true; 
-
-		int a = 0; 
-		a += print_ancestors(res, node->left, key);
-		a += print_ancestors(res, node->right, key);
-
-		if ( a > 0 )
-		{
-			res.push_back(node->data);
-			return true;
-		}
-		return false;
+		print_ancestors(res, root, key);
 	};
  	Node<T> * least_common_ancestor(Node<T> *root, T val1, T val2)
     {
@@ -91,7 +95,6 @@ public:
         Node<T> *left = least_common_ancestor(root->left, val1, val2);
         Node<T> *right = least_common_ancestor(root->right, val1, val2);
 
-        if( left == nullptr && right == nullptr) return nullptr;
         if( left != nullptr && right != nullptr) return root;
         if( left != nullptr ) return left;
         else return right;
