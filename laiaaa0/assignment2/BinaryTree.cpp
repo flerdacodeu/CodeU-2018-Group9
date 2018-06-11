@@ -73,12 +73,19 @@ void BinaryTree<T>::PrintInorder(){
 }
 
 
-template <class T> 
+template <class T>
 int BinaryTree<T>::Depth(){
   if (this==nullptr) return 0;
   else {
-    int left_depth = this->left_subtree_->Depth();
-    int right_depth = this->right_subtree_->Depth();
+      int left_depth, right_depth;
+      if (this->left_subtree_!=nullptr){
+          left_depth = this->left_subtree_->Depth();
+      }
+      else left_depth = 0;
+      if (this->right_subtree_!=nullptr){
+        right_depth = this->right_subtree_->Depth();
+      }
+      else right_depth = 0;
     if (left_depth<right_depth)
       return right_depth+1;
     else
