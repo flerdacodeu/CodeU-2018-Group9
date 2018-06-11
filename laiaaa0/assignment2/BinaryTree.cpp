@@ -73,7 +73,7 @@ void BinaryTree<T>::PrintInorder(){
 }
 
 
-template <class T> //TODO LEFT SUBTREE CAN BE nullptr
+template <class T> 
 int BinaryTree<T>::Depth(){
   if (this==nullptr) return 0;
   else {

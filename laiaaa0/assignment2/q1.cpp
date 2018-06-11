@@ -5,15 +5,12 @@ template<class T>
 bool BinaryTree<T>::AncestorsOfKey (const T & key, std::vector<T> &ancestors){
   BinaryTree<T> *tree_of_key;
   if (this->FindValueInTree(key, tree_of_key)){
-    if (tree_of_key->parent_!=NULL){
+    BinaryTree<T> *current_tree = tree_of_key;
 
-      BinaryTree<T> *current_tree = tree_of_key->parent_;
-      ancestors.push_back(current_tree->root_value_);
       while (current_tree->parent_!=NULL){
         current_tree = current_tree->parent_;
         ancestors.push_back(current_tree->root_value_);
       }
-    }
     return true;
   }
   else {
