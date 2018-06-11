@@ -4,7 +4,7 @@ using namespace std;
 template<class T>
 bool BinaryTree<T>::AncestorsOfKey (const T & key, std::vector<T> &ancestors){
   BinaryTree<T> *tree_of_key;
-  if (this->IsValueInTree(key, tree_of_key)){
+  if (this->FindValueInTree(key, tree_of_key)){
     if (tree_of_key->parent_!=NULL){
 
       BinaryTree<T> *current_tree = tree_of_key->parent_;
@@ -21,46 +21,59 @@ bool BinaryTree<T>::AncestorsOfKey (const T & key, std::vector<T> &ancestors){
   }
 }
 
+template<class T>
+
+void CHECK_EQUAL (const T true_result, const T obtained_result){
+  if (true_result==obtained_result) cout<<"Ok!"<<endl;
+  else {
+    cout<<"Obtained "<<obtained_result<<" but expected "<<true_result<<endl;
+  }
+}
+
 
 
 int main (){
-BinaryTree<int> * leaf1  = new BinaryTree<int>(8);
-BinaryTree<int> * leaf2  = new BinaryTree<int>(9);
+  BinaryTree<int> * leaf1  = new BinaryTree<int>(8);
+  BinaryTree<int> * leaf2  = new BinaryTree<int>(9);
 
-BinaryTree<int> * leaf3  = new BinaryTree<int>(4);
-BinaryTree<int> * leaf4  = new BinaryTree<int>(5);
+  BinaryTree<int> * leaf3  = new BinaryTree<int>(4);
+  BinaryTree<int> * leaf4  = new BinaryTree<int>(5);
 
-
-
-/*
-        3
-    1      2
-  8   9   4 5
-*/
-BinaryTree<int>* bt = new BinaryTree<int>(1,leaf1,leaf2);
-BinaryTree<int>* bt2 = new BinaryTree<int>(2,leaf3,leaf4);
-BinaryTree<int>* bt3 = new BinaryTree<int>(3,bt,bt2);
+  /*
+          3
+      1      2
+    8   9   4 5
+  */
+  BinaryTree<int>* bt = new BinaryTree<int>(1,leaf1,leaf2);
+  BinaryTree<int>* bt2 = new BinaryTree<int>(2,leaf3,leaf4);
+  BinaryTree<int>* bt3 = new BinaryTree<int>(3,bt,bt2);
 
 
 
-//InputMethod im = PREORDER;
-
-bt->PrintInorder();
-cout<<endl<<endl;
-bt3->PrintInorder();
-cout<<endl<<endl;
+  bt->PrintInorder();
+  cout<<endl<<endl;
+  bt3->PrintInorder();
+  cout<<endl<<endl;
 
 
-vector<int> v;
-BinaryTree<int> *aux;
+  vector<int> v;
+  BinaryTree<int> *aux;
 
-bt3->AncestorsOfKey(9,v);
+  int key = 9;
+  cout<<"Ancestors of key "<<key<<endl;
+  bt3->AncestorsOfKey(key,v);
+  for (int i=0;i<v.size();++i) cout<<v[i]<< " ";
+  cout<<endl;
 
-for (int i=0;i<v.size();++i) cout<<v[i]<< " ";
-cout<<endl;
-//BinaryTree<int> bt(values,im) = new BinaryTree<int>;
+  int lca_value;
+  bool lca_success = bt3->LowestCommonAncestor(4,2,lca_value);
 
-cout<<bt3->LowestCommonAncestor(4,2)<<endl;
+  if (lca_success){
+    CHECK_EQUAL(2,lca_value);
+  }
+  else {
+    cout<<"Lowest common ancestor not found"<<endl;
+  }
 
 
 }

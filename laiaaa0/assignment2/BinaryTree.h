@@ -1,12 +1,6 @@
 #include <vector>
-#include <queue>
 #include <iostream>
 #include <stdexcept>
-enum InputMethod {
-  PREORDER,
-  INORDER,
-  POSTORDER
-};
 
 template <class T>
 class BinaryTree{
@@ -42,7 +36,7 @@ public:
      \post root_of_value contains the binary tree whose root is the value
      \return "true if the value is in the tree, false otherwise"
   */
-  bool IsValueInTree (const T & value, BinaryTree<T>*&root_of_value);
+  bool FindValueInTree (const T & value, BinaryTree<T>*&root_of_value);
 
 
 
@@ -63,5 +57,5 @@ public:
   \pre the keys must be present in the binary tree, and there is only one occurance of each key
   \return the value of the common ancestor
   */
-  const T LowestCommonAncestor (const T & key1, const T & key2);
+  bool LowestCommonAncestor (const T & key1, const T & key2, T & lca);
 };
