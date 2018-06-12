@@ -27,10 +27,10 @@ template <class T>
 class Binary_Tree{
 public:
 	Binary_Tree();
-	Binary_Tree(const Binary_Tree <T> &copy_from);
+	Binary_Tree(const Binary_Tree <T> &)=delete;
+	Binary_Tree & operator =(const Binary_Tree <T> &)=delete;
 	~Binary_Tree();
-	void insert(T &VAL); //insert at first available position  level order
-	bool insert( T &VAL, T& parent_, char child_); //insert left or right child to a chosen parent
+	bool insert( T &VAL, T& PARENT, bool childDirection); //insert left or right child to a chosen parent
 	bool insertRoot( T &VAL);
 	bool empty();
 	void clear(); 
@@ -45,10 +45,6 @@ private:
 template <class T>
 Binary_Tree<T> ::Binary_Tree() {
 	root = nullptr;
-}
-template <class T>
-Binary_Tree<T> ::Binary_Tree(const Binary_Tree<T> & copy_from) {
-	//	left empty, asked for a clarification on Slack :)
 }
 template <class T>
 Binary_Tree<T> :: ~Binary_Tree() {
@@ -89,21 +85,21 @@ BTNode<T> * Binary_Tree<T> ::find(T &VAL, BTNode<T> * node) {//return a pointer 
 	return rightSide;
 }
 template <class T>
-bool Binary_Tree<T> :: insert( T &VAL,  T & parent_, char child_) {//insert node to a non-empty tree
-	//insert only unique values , child_ tells left or right child
+bool Binary_Tree<T> ::insert(T &VAL, T & PARENT, bool childDirection ) {//insert node to a non-empty tree
+	//insert only unique values , childDirection tells left =false  or right child =true
 	if (find(VAL))//value already exist in the tree, do not insert it
 		return false;
-	BTNode<T> * prevNode = find(parent_ , root);
+	BTNode<T> * prevNode = find(PARENT , root);
 	if (prevNode == nullptr)//parent node was not found, or tree is empty
 		return false; 
-	if (prevNode->left != nullptr && child_ == 'L') //parent already has a left child
+	if (prevNode->left != nullptr && childDirection == false) //parent already has a left child
 		return false;
-	if (prevNode->right != nullptr && child_ == 'R')//parent already has a right child
+	if (prevNode->right != nullptr && childDirection == true)//parent already has a right child
 		return false;
 	BTNode<T> * newNode = new BTNode<T>(VAL, nullptr, nullptr, prevNode , prevNode->depth+1); //val, left, right, patent, new depth
-	if (child_=='L') 
+	if (childDirection ==false)
 		prevNode->left = newNode;
-	else if (child_=='R')
+	else if (childDirection ==true)
 		prevNode->right = newNode;
 	return true;
 }
@@ -154,10 +150,10 @@ void fillTree(vector <int>& values,Binary_Tree<int> & myBT) {//hard-coded test c
 					       3   4
 	*/
 	myBT.insertRoot(values[0]);
-	myBT.insert(values[1], values[0], 'L');
-	myBT.insert(values[2], values[1], 'L');
-	myBT.insert(values[3], values[1], 'R');
-	myBT.insert(values[4], values[0], 'R');
+	myBT.insert(values[1], values[0], false);
+	myBT.insert(values[2], values[1], false);
+	myBT.insert(values[3], values[1], true);
+	myBT.insert(values[4], values[0], true);
 }
 void testGetAncestors_valNotInTree(Binary_Tree<int> & myBT) {
 	int i = 7;
@@ -211,7 +207,6 @@ void testCommonAncestor_SpecialAncestorRelation(vector <int> & values, Binary_Tr
 }
 
 int main() {
-	//tried to apply testing learnt in the testing session
 	vector<int> values = { 1,2,3,4,5 };
 	Binary_Tree<int> myBT;
 	fillTree(values,myBT);
@@ -221,6 +216,5 @@ int main() {
 	testCommonAncestor_OneValueNotInTree(values,myBT);
 	testCommonAncestor_ValuesInTree(values, myBT);
 	testCommonAncestor_SpecialAncestorRelation(values, myBT);
-	//Binary_Tree<int> myBT2=myBT;
 	return 0;
 }
