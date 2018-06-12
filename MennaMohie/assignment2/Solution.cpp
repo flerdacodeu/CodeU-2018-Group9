@@ -28,6 +28,18 @@ class BinaryTree
     Node<T> *root;
     int Size;
 
+    void print(Node<T> *currentRoot, string indentation="")
+    {
+        if(currentRoot==nullptr)
+        {
+            cout<<indentation<<'*'<<endl;
+            return;
+        }
+        cout<<indentation<<currentRoot->value<<endl;
+        print(currentRoot->left,indentation+" ");
+        print(currentRoot->right,indentation+" ");
+    }
+
     bool add(Node<T>* currentRoot, T parentVal, T val, direction dir)
     {
         if(currentRoot==nullptr)
@@ -119,16 +131,10 @@ public:
         return root;
     }
 
-    void traverse(Node<T> *currentRoot, string indentation="")
+    void traverse()
     {
-        if(currentRoot==nullptr)
-        {
-            cout<<indentation<<'*'<<endl;
-            return;
-        }
-        cout<<indentation<<currentRoot->value<<endl;
-        traverse(currentRoot->left,indentation+" ");
-        traverse(currentRoot->right,indentation+" ");
+        if(root!=nullptr)
+            print(root);
     }
 
     Node<T>* findNode(Node<T> *currentRoot, T val)
@@ -163,7 +169,6 @@ public:
             return nullptr;
         else
             return LCA(root, val1, val2);
-
     }
 };
 
@@ -179,7 +184,7 @@ int main()
     tree.addChildToParent(7, 8, addLeft);
     tree.addChildToParent(8, 9, addRight);
 
-    tree.traverse(tree.getRoot());
+    tree.traverse();
 
     vector<int> ancestors;
     if(tree.getAncestors(9, ancestors))
