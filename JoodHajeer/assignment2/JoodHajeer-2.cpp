@@ -30,7 +30,7 @@ public:
 	Binary_Tree(const Binary_Tree <T> &)=delete;
 	Binary_Tree & operator =(const Binary_Tree <T> &)=delete;
 	~Binary_Tree();
-	bool insert( T &VAL, T& PARENT, bool childDirection); //insert left or right child to a chosen parent
+	bool insert( T &VAL, T& PARENT, bool insertToTheRight); //insert left or right child to a chosen parent
 	bool insertRoot( T &VAL);
 	bool empty();
 	void clear(); 
@@ -85,21 +85,21 @@ BTNode<T> * Binary_Tree<T> ::find(T &VAL, BTNode<T> * node) {//return a pointer 
 	return rightSide;
 }
 template <class T>
-bool Binary_Tree<T> ::insert(T &VAL, T & PARENT, bool childDirection ) {//insert node to a non-empty tree
-	//insert only unique values , childDirection tells left =false  or right child =true
+bool Binary_Tree<T> ::insert(T &VAL, T & PARENT, bool insertToTheRight ) {//insert node to a non-empty tree
+	//insert only unique values , insertToTheRight tells left =false  or right child =true
 	if (find(VAL))//value already exist in the tree, do not insert it
 		return false;
 	BTNode<T> * prevNode = find(PARENT , root);
 	if (prevNode == nullptr)//parent node was not found, or tree is empty
 		return false; 
-	if (prevNode->left != nullptr && childDirection == false) //parent already has a left child
+	if (prevNode->left != nullptr && insertToTheRight == false) //parent already has a left child
 		return false;
-	if (prevNode->right != nullptr && childDirection == true)//parent already has a right child
+	if (prevNode->right != nullptr && insertToTheRight == true)//parent already has a right child
 		return false;
 	BTNode<T> * newNode = new BTNode<T>(VAL, nullptr, nullptr, prevNode , prevNode->depth+1); //val, left, right, patent, new depth
-	if (childDirection ==false)
+	if (insertToTheRight ==false)
 		prevNode->left = newNode;
-	else if (childDirection ==true)
+	else if (insertToTheRight ==true)
 		prevNode->right = newNode;
 	return true;
 }
@@ -107,7 +107,7 @@ template <class T>
 bool Binary_Tree<T> :: insertRoot( T &VAL) {
 	if (root != nullptr)
 		return false;
-	BTNode<T> * newNode = new BTNode<T>(VAL, nullptr, nullptr, nullptr, 0); //val, left, right, patent, depth
+	BTNode<T> * newNode = new BTNode<T>(VAL, nullptr, nullptr, nullptr, 0); //val, left, right, parent, depth
 	root = newNode;
 	return true;
 }
