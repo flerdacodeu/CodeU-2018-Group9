@@ -23,20 +23,14 @@ public:
 	tree_node(const T &data, tree_node* left, tree_node* right) :
 			data(data), left(left), right(right) {
 	}
-	const T& get_data() {
+	const T& get_data() const {
 		return data;
 	}
-	const T* get_left() {
-		if (!left) {
-			return nullptr;
-		}
-		return &left->data;
+	const tree_node* get_left() const {
+		return left;
 	}
-	const T* get_right() {
-		if (!right) {
-			return nullptr;
-		}
-		return &right->data;
+	const tree_node* get_right() const {
+		return right;
 	}
 	friend class binary_tree<T> ;
 // the binary_tree class is declared as tree_node's friend which means that binary_tree can access the private members of tree_node
@@ -60,7 +54,7 @@ public:
 	bool empty();
 	void clear();
 	bool find_ancestors(const T &target, vector<T> &ancestors); // returns false if target key doesn't exist in the tree and returns true otherwise // the vector ancestors parameter will contain ancestors keys starting from the parent of target node to the root or vector will be empty if target key is the root's key
-	tree_node<T>* common_ancestor(tree_node<T>* first, tree_node<T>* second); // returns a pointer to common ancestor node // in case of an error, it returns nullptr
+	tree_node<T>* common_ancestor(const T &first_data, const T &second_data); // returns a pointer to common ancestor node // in case of an error, it returns nullptr
 
 	enum printing_order {
 		inorder, preorder, postorder
@@ -232,8 +226,10 @@ pair<tree_node<T>*, int> binary_tree<T>::common_ancestor(tree_node<T>* current,
 	return res_left;
 }
 template<class T>
-tree_node<T>* binary_tree<T>::common_ancestor(tree_node<T> *first,
-		tree_node<T>* second) {
+tree_node<T>* binary_tree<T>::common_ancestor(const T &first_data,
+		const T &second_data) {
+	tree_node<T>* first = find(first_data);
+	tree_node<T>* second = find(second_data);
 	pair<tree_node<T>*, int> result = common_ancestor(root, first, second);
 	return result.first;
 }
@@ -275,7 +271,7 @@ int main() {
 	// error
 	cout << "10 Ancestors: ";
 	if (!bt.find_ancestors(10, ancestors)) {
-		cout << "ERROR: key not found in tree" << endl;
+		cout << "key not found in tree" << endl;
 	} else {
 		for (int ancestor : ancestors) {
 			cout << ancestor << " ";
@@ -308,7 +304,7 @@ int main() {
 
 	tree_node<int>* result;
 
-	result = bt.common_ancestor(bt.find(5), bt.find(6)); // node with key 5, node with key 6
+	result = bt.common_ancestor(5, 6); // node with key 5, node with key 6 // 3
 	cout << "Common ancestor for node with key 5 and node with key 6: ";
 	if (!result) {
 		cout << "ERROR" << endl;
@@ -316,7 +312,7 @@ int main() {
 		cout << (*result).get_data() << endl;
 	}
 
-	result = bt.common_ancestor(bt.find(8), bt.find(4)); // node with key 8, node with key 4
+	result = bt.common_ancestor(8, 4); // node with key 8, node with key 4 // 4
 	cout << "Common ancestor for node with key 8 and node with key 4: ";
 	if (!result) {
 		cout << "ERROR" << endl;
@@ -324,7 +320,7 @@ int main() {
 		cout << (*result).get_data() << endl;
 	}
 
-	result = bt.common_ancestor(bt.find(4), bt.find(4)); // node with key 4, node with key 4 // same node
+	result = bt.common_ancestor(4, 4); // node with key 4, node with key 4 // same node // error
 	cout
 			<< "Common ancestor for node with key 4 and node with key 4 (same node): ";
 	if (!result) {
@@ -332,28 +328,20 @@ int main() {
 	} else {
 		cout << (*result).get_data() << endl;
 	}
-	result = bt.common_ancestor(bt.get_root(), bt.find(2)); // root with key 7 (root), node with key 2
+	result = bt.common_ancestor(7, 2); // root with key 7 (root), node with key 2 // 7
 	cout << "Common ancestor for node with key 7 (root) and node with key 2: ";
 	if (!result) {
 		cout << "ERROR" << endl;
 	} else {
 		cout << (*result).get_data() << endl;
 	}
-	result = bt.common_ancestor(bt.get_root(), nullptr); // root with key 7, nullptr
+	result = bt.common_ancestor(7, 100); // root with key 7, node with key 100 (doesn't exist) // error
 	cout << "Common ancestor for node with key 7 and nullptr: ";
 	if (!result) {
 		cout << "ERROR" << endl;
 	} else {
 		cout << (*result).get_data() << endl;
 	}
-
-	// test remove leaf
-	cout << endl << "test remove leaf:" << endl;
-	bt.print(bt.get_root(), bt.inorder);
-	cout << endl;
-	bt.remove_leaf_child(4, right_child);
-	bt.print(bt.get_root(), bt.inorder);
-	cout << endl;
 
 	// test node's getters
 	cout << endl << "test node's getters:" << endl;
@@ -363,12 +351,20 @@ int main() {
 		if (node->get_left() == nullptr)
 			cout << "null" << ' ';
 		else
-			cout << *node->get_left() << ' ';
+			cout << node->get_left()->get_data() << ' ';
 		if (node->get_right() == nullptr)
 			cout << "null" << endl;
 		else
-			cout << *node->get_right() << endl;
+			cout << node->get_right()->get_data() << endl;
 	}
+
+	// test remove leaf
+	cout << endl << "test remove leaf:" << endl;
+	bt.print(bt.get_root(), bt.inorder);
+	cout << endl;
+	bt.remove_leaf_child(4, right_child);
+	bt.print(bt.get_root(), bt.inorder);
+	cout << endl;
 
 	// test clear and empty methods
 	cout << endl << "Test clear and empty methods:" << endl;
