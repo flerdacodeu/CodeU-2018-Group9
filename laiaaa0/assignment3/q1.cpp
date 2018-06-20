@@ -1,50 +1,51 @@
-#include "Dictionary.h"
 
-void FindAllWords (Dictionary & d, std::vector<std::vector<char> > &grid, std::vector<std::string> found_words){
+#include "TestingFunctions.cpp"
 
+int directions_x []= {1,-1,0,0,1,-1,-1,1};
+int directions_y []= {0,0,1,-1,1,1,-1,-1};
 
-}
-char GetRandomLetter (){
-      return (char) (rand()%(1+'z'-'a') + 'a');
-}
-
-
-void CreateRandomGrid(std::vector<std::vector<char> > &grid){
-    for (int i = 0 ; i < grid.size(); ++i){
-        for (int j = 0; j < grid[i].size(); ++j){
-            grid[i][j] = GetRandomLetter();
-        }
+bool IsInGrid (int i, int j,const std::vector<std::vector<char> > &grid){
+    if (i>=0 && i<grid.size()){
+      if (j>=0 && j<grid[i].size()) return true;
     }
+    return false;
 }
-void CreateSampleGrid(std::vector<std::vector<char> > &grid){
-    grid.clear();
 
-    std::vector<char> line1{'a','a','r'};
-    std::vector<char> line2{'t','c','d'};
-    grid.push_back(line1);
-    grid.push_back(line2);
-
-}
-void PrintGrid(std::vector<std::vector<char> > &grid){
-  for (int i = 0 ; i < grid.size(); ++i){
-      for (int j = 0; j < grid[i].size(); ++j){
-          std::cout<<grid[i][j]<<" ";
-      }
-      std::cout<<std::endl;
+void FindAllWordsRecursive (int x, int y, Dictionary * d, std::vector<std::vector<char> > &grid, std::vector<std::vector<bool> > &visited,  std::string current_word,std::vector<std::string> &found_words){
+  current_word = current_word+grid[x][y];
+  visited[x][y] = true;
+  if (d->IsWord(current_word)){
+    found_words.push_back(current_word);
   }
+  if (d->IsPrefix(current_word)){
+      for (int i = 0; i<8; ++i){
+        if (IsInGrid(x+directions_x[i],y+directions_y[i],grid) && !visited[x+directions_x[i]][y+directions_y[i]]){
+          FindAllWordsRecursive(x+directions_x[i],y+directions_y[i],d,grid,visited,current_word,found_words);
+        }
+
+      }
+  }
+
+
 }
+std::vector<std::string> FindAllWords (Dictionary *d, std::vector<std::vector<char> > &grid){
+  int n = grid.size();
+  int m;
+  std::vector<std::string>all_words;
+  for (int i = 0 ; i < n; ++i){
+      m = grid[i].size();
+      for (int j = 0; j < m; ++j){
+        std::vector<std::vector<bool> > visited_positions(n, std::vector<bool> (m,false));
+        FindAllWordsRecursive (i,j,d,grid,visited_positions,"",all_words);
+      }
+    }
+    return all_words;
+}
+
 
 int main (){
-  srand (time(NULL));
-  int n,m;
-  std::cin>>n>>m;
-  std::vector<std::string> v{"cat","car","card","rat"};
-  Dictionary * d = new Dictionary(v);
-  std::cout<<d->IsPrefix("ra")<<d->IsWord("card")<<std::endl;
-  std::vector<std::vector<char> > letter_grid(n, std::vector<char> (m,'a'));
-  CreateRandomGrid (letter_grid);
-  PrintGrid(letter_grid);
-  CreateSampleGrid(letter_grid);
-  PrintGrid(letter_grid);
+
+
+  all_tests();
 
 }
