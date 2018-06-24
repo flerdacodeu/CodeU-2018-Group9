@@ -9,32 +9,30 @@ using namespace std;
 
 enum checkType { wordCheck, prefixCheck };
 
-const int gridCols = 3;
-
 class Trie;
 
 class TrieNode
 {
-	char character;
 	bool terminates = false;
 	unordered_map<char, TrieNode*> children;
 
-	void addWord(string word)
+	//passing the original word and the current index instead of making a different string for each call
+	void addWord(const string &word, int currentIndex=0)
 	{
-		int wordSize = word.length();
+		int wordSize = word.length()-currentIndex;
 
 		if (wordSize == 0)
 			return;
 
-		char firstChar = word[0];
+		char firstChar = word[currentIndex];
 		TrieNode *child = children[firstChar];
 		if (child == nullptr)
 		{
-			child = new TrieNode(firstChar);
+			child = new TrieNode();
 			children[firstChar] = child;
 		}
 		if(wordSize>1)
-			child->addWord(word.substr(1, wordSize - 1));
+			child->addWord(word,++currentIndex);
 		else
 			child->terminates = true;
 	}
@@ -45,15 +43,46 @@ class TrieNode
 	}
 
 public:
-	TrieNode() {}
-	TrieNode(char c) :character(c){}
-	
+
 	friend class Trie;	
 };
 
 class Trie
 {
 	TrieNode *root;
+
+	bool check(string word, checkType type)
+	{
+		if (word.empty())
+			return false;
+
+		TrieNode *node = root;
+
+		for (char c : word)
+		{
+			if (!node->hasChild(c))
+				return false;
+			node = node->children[c];
+		}
+
+		//if we're doing a wordCheck we need to check the terminates boolean of the last character
+		if (type == wordCheck && node->terminates == false)
+			return false;
+
+		return true;
+	}
+
+	void remove(TrieNode *node)
+	{
+		if (node->children.empty())
+			delete node;
+		else
+		{
+			unordered_map<char, TrieNode*>::iterator it;
+			for (it = node->children.begin(); it != node->children.end(); it++)
+				remove(it->second);
+		}
+	}
 
 public:
 
@@ -66,107 +95,171 @@ public:
 		}
 	}
 
-	bool isWord(string word, checkType type = wordCheck)
+	//I need help doing the copy constructor :/
+	/*Trie(const Trie&)
 	{
-		if (word.length() == 0)
-			return false;
 
-		TrieNode *node = root;
+	}
 
-		for (char c : word)
-		{
-			if (!node->hasChild(c))
-				return false;
-			node = node->children[c];
+	Trie& operator =(const Trie&)
+	{
 
-			//if we're doing a wordCheck and we've reached the last letter in the word we need to check its terminates boolean
-			if (type == wordCheck && c == word[word.length() - 1] && node->terminates == false)
-				return false;
-		}
+	}
 
-		return true;
+	//copy constructor is needed first
+	~Trie() 
+	{
+		if(root!=nullptr)
+			remove(root);
+	}*/
+
+	bool isWord(string word)
+	{
+		return check(word, wordCheck);
 	}
 
 	bool isPrefix(string prefix)
 	{
-		return isWord(prefix, prefixCheck);
+		return check(prefix, prefixCheck);
 	}
 };
 
-bool formWords(string word, Trie dictionary, char grid[][gridCols], int rows, int currentRow, int currentCol, vector<string> &words)
+class Finder
 {
-	if (!dictionary.isPrefix(word))
-		return false;
+	Trie dictionary;
+	vector<vector<char>> grid;
+	int rows;
+	int cols;
+	vector<vector<bool>> visited;
 
-	string updatedWord;
-	int updatedRow, updatedCol;
-	for (int x = -1; x <= 1; x++)
+	bool formWords(string &word, int currentRow, int currentCol, vector<string> &words)
 	{
-		for (int y = -1; y <= 1; y++)
-		{
-			updatedRow = currentRow + x;
-			updatedCol = currentCol + y;
-			if ((y != 0 || x != 0) && updatedRow>=0 && updatedRow<rows && updatedCol>=0 && updatedCol<gridCols)
-			{
-				updatedWord = word + grid[currentRow + x][currentCol + y];
-				if (dictionary.isWord(updatedWord))
-				{
-					words.push_back(updatedWord);
-				}
-				formWords(updatedWord, dictionary, grid, rows, updatedRow, updatedCol, words);
-			}
-		}
-	}
-	return words.size() != 0;
-}
+		if (!dictionary.isPrefix(word))
+			return false;
 
-set<string> formedWords(Trie dictionary, char grid[][3], int rows)
-{
-	set<string> allFormedWords;
-	vector<string> words;
-	string word;
+		visited[currentRow][currentCol] = true;
 
-	for (int r = 0; r < rows; r++)
-	{
-		for (int c = 0; c < gridCols; c++)
+		string updatedWord;
+		int updatedRow, updatedCol;
+		for (int x = -1; x <= 1; x++)
 		{
-			words.clear();
-			word = grid[r][c];
-			if (formWords(word, dictionary, grid, rows, r, c, words))
+			for (int y = -1; y <= 1; y++)
 			{
-				for (string word : words)
+				updatedRow = currentRow + x;
+				updatedCol = currentCol + y;
+				if ((y != 0 || x != 0) && updatedRow >= 0 && updatedRow < rows && updatedCol >= 0 && updatedCol < cols)
 				{
-					allFormedWords.emplace(word);
+					if (!visited[updatedRow][updatedCol])
+					{
+						updatedWord = word + grid[updatedRow][updatedCol];
+						if (dictionary.isWord(updatedWord))
+						{
+							words.push_back(updatedWord);
+						}
+						formWords(updatedWord, updatedRow, updatedCol, words);
+					}
 				}
 			}
-			
 		}
+		return words.size() != 0;
 	}
-	return allFormedWords;
-}
+
+public:
+
+	Finder(const Trie &d, const vector<vector<char>> &g, const int r, const int c) :dictionary(d), grid(g), rows(r), cols(c) {}
+
+	set<string> formedWords()
+	{
+		set<string> allFormedWords;
+		vector<string> words;
+		string word;
+
+		for (int r = 0; r < rows; r++)
+		{
+			for (int c = 0; c < cols; c++)
+			{
+				visited.clear();
+				visited.resize(rows,vector<bool>(cols,false));
+				
+				words.clear();
+				word = grid[r][c];
+				if (formWords(word, r, c, words))
+				{
+					for (string word : words)
+					{
+						allFormedWords.emplace(word);
+					}
+				}
+			}
+		}
+		return allFormedWords;
+	}
+};
 
 int main()
 {
-	vector<string> v = { "CAR", "CARD", "CART", "CAT" };
-	Trie dict(v);
+	Trie dict1({ "CAR", "CARD", "CART", "CAT" });
 
-	EXPECT_TRUE(dict.isPrefix("C"));
-	EXPECT_TRUE(dict.isPrefix("CAT"));
-	EXPECT_FALSE(dict.isPrefix(""));
+	EXPECT_TRUE(dict1.isPrefix("C"));
+	EXPECT_TRUE(dict1.isPrefix("CA"));
+	EXPECT_TRUE(dict1.isPrefix("CAT"));
+	EXPECT_TRUE(dict1.isPrefix("CAR"));
+	EXPECT_FALSE(dict1.isPrefix("ca"));
+	EXPECT_FALSE(dict1.isPrefix("RA"));
+	EXPECT_FALSE(dict1.isPrefix("CR"));
+	EXPECT_FALSE(dict1.isPrefix("D"));
+	EXPECT_FALSE(dict1.isPrefix("TA"));
 
-	EXPECT_TRUE(dict.isWord("CART"));
-	EXPECT_FALSE(dict.isWord("CA"));
-	EXPECT_FALSE(dict.isWord(""));
+	EXPECT_TRUE(dict1.isWord("CART"));
+	EXPECT_TRUE(dict1.isWord("CARD"));
+	EXPECT_TRUE(dict1.isWord("CAT"));
+	EXPECT_FALSE(dict1.isWord("cat"));
+	EXPECT_FALSE(dict1.isWord("CA"));
+	EXPECT_FALSE(dict1.isWord("TA"));
+	EXPECT_FALSE(dict1.isWord(""));
 
-	char arr[2][gridCols] = { 'A','A','R','T','C','D' };
+	vector<vector<char>> grid1;
+	grid1.push_back({ 'A', 'A', 'R' });
+	grid1.push_back({ 'T', 'C', 'D' });
 
-	set<string> actual = formedWords(dict, arr, 2);
-	set<string> expected = { "CAT", "CARD", "CAR" };	
-	EXPECT_EQ(expected, actual);
-	expected.clear();
-	expected = { "CAT", "CARD" };
-	EXPECT_EQ(expected, actual);
-	
+	Finder finder1(dict1, grid1, 2, 3);
+
+	set<string> actual1 = finder1.formedWords();
+	set<string> expected1 = { "CAT", "CARD", "CAR" };
+	EXPECT_EQ(expected1, actual1);
+	expected1.clear();
+	expected1 = { "CAT", "CARD" };
+	EXPECT_EQ(expected1, actual1);
+
+	Trie dict2({ "banana","mango","grapes","apple" });
+
+	EXPECT_TRUE(dict2.isPrefix("ban"));
+	EXPECT_TRUE(dict2.isPrefix("mang"));
+	EXPECT_TRUE(dict2.isPrefix("a"));
+	EXPECT_TRUE(dict2.isPrefix("grapes"));
+	EXPECT_FALSE(dict2.isPrefix("Gra"));
+	EXPECT_FALSE(dict2.isPrefix("C"));
+
+	EXPECT_TRUE(dict2.isWord("banana"));
+	EXPECT_TRUE(dict2.isWord("mango"));
+	EXPECT_FALSE(dict2.isWord("grape"));
+	EXPECT_FALSE(dict2.isWord("Apple"));
+
+	vector<vector<char>> grid2;
+	grid2.push_back({ 'p','a','h','f' });
+	grid2.push_back({ 'p','n','a','e' });
+	grid2.push_back({ 'l','g','o','n' });
+	grid2.push_back({ 'e','n','a','d' });
+	grid2.push_back({ 'm','a','c','b' });
+
+	Finder finder2(dict2, grid2, 5, 4);
+
+	set<string> actual2 = finder2.formedWords();
+	set<string> expected2 = { "banana", "apple", "mango" };
+	EXPECT_EQ(expected2, actual2);
+	expected2.clear();
+	expected2 = { "Banana", "apple", "mango" };
+	EXPECT_EQ(expected2, actual2);
 
 	return 0;
 }
