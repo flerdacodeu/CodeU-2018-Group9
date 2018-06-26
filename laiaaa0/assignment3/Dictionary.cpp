@@ -1,6 +1,6 @@
 #include "Dictionary.h"
 
-bool Dictionary::IsPrefixOfWord(std::string prefix, std::string word) {
+bool Dictionary::IsPrefixOfWord(std::string prefix, std::string word) const{
   if (prefix.size() > word.size()) return false;
   for (int i = 0; i < prefix.size(); ++i) {
     if (word[i] != prefix[i]) return false;
@@ -15,19 +15,20 @@ Dictionary::Dictionary(const std::vector<std::string> &word_list) {
   }
 }
 
-bool Dictionary::IsWord (const std::string & query_word) const {
-  if (this->dictionary_words_.find(query_word) == this->dictionary_words_.end()) return false;
-  return (this->dictionary_words_[query_word]);
+bool Dictionary::IsWord(const std::string & query_word) const {
+  auto query_iterator =this->dictionary_words_.find(query_word);
+  if (query_iterator == this->dictionary_words_.end()) return false;
+
+  return query_iterator->second;
 }
 
 
-bool Dictionary::IsPrefix (const std::string & query_prefix) const {
-  if (this->dictionary_prefixes_.find(query_prefix) == this->dictionary_prefixes_.end()) return false;
-  else {
-    if (this->dictionary_prefixes_[query_prefix]>0) return true;
-    else return false;
-  }
+bool Dictionary::IsPrefix(const std::string & query_prefix) const {
+  auto query_iterator = this->dictionary_prefixes_.find(query_prefix);
+  if (query_iterator == this->dictionary_prefixes_.end()) return false;
 
+  if (query_iterator->second > 0) return true;
+  return false;
 }
 bool Dictionary::InsertWord(const std::string & word) {
   //word already exists
@@ -58,10 +59,7 @@ bool Dictionary::RemoveWord(const std::string & word) {
     for (int j = 0; j<word.size(); ++j){
         prefix = prefix+word[j];
         this->dictionary_prefixes_[prefix]--;
-
     }
-
     return true;
   }
-
 }

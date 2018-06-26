@@ -1,13 +1,17 @@
 #include <vector>
+#include <string>
 #include <iostream>
 #include <map>
+
+#ifndef DICTIONARY_H
+#define DICTIONARY_H
 
 class Dictionary{
 
   private:
     std::map<std::string, bool> dictionary_words_;
     std::map<std::string, int> dictionary_prefixes_;
-    bool IsPrefixOfWord(std::string prefix, std::string word);
+    bool IsPrefixOfWord(std::string prefix, std::string word) const;
     bool InsertWord(const std::string & word);
 
   public:
@@ -18,3 +22,5 @@ class Dictionary{
     bool IsPrefix(const std::string & query_prefix) const;
     bool RemoveWord(const std::string & word);
 };
+
+#endif
