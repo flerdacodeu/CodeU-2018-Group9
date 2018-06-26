@@ -3,8 +3,8 @@
 dictionary::dictionary() {
 	root = unique_ptr<node>(new node);
 }
-void dictionary::insert(const string &word) {
 
+void dictionary::insert(const string &word) {
 	node* ptr = root.get();
 	for (char c : word) {
 		if (!ptr->children[c]) {
@@ -13,47 +13,44 @@ void dictionary::insert(const string &word) {
 		ptr = ptr->children[c].get();
 	}
 	ptr->isEndWord = true;
-	return;
 }
-void dictionary::insert(const vector<string> &words) {
 
+void dictionary::insert(const vector<string> &words) {
 	for (string word : words) {
 		insert(word);
 	}
-	return;
 }
 
 void dictionary::remove(const string &word) {
 	remove(root, word, 0);
-	return;
 }
-void dictionary::remove(const vector<string> &words) {
 
+void dictionary::remove(const vector<string> &words) {
 	for (string word : words) {
 		remove(word);
 	}
-	return;
 }
+
 bool dictionary::remove(unique_ptr<node> &current_node, const string &word,
 		int index) {
+	if (!current_node) {
+		return false;
+	}
 	if (index == word.length() && current_node->isEndWord) {
 		current_node->isEndWord = false;
 		return true;
 	}
-	if (!current_node || index >= word.length()
+	if (index >= word.length()
 			|| !remove(current_node->children[word[index]], word, index + 1)) {
 		return false;
 	}
-
 	if (current_node->children[word[index]]->children.empty()) {
 		current_node->children.erase(word[index]);
 	}
 	return true;
-
 }
 
-bool dictionary::isWord(const string &word) {
-
+bool dictionary::isWord(const string &word) const {
 	node* ptr = root.get();
 	for (char c : word) {
 		if (!ptr->children[c]) {
@@ -63,8 +60,8 @@ bool dictionary::isWord(const string &word) {
 	}
 	return ptr->isEndWord;
 }
-bool dictionary::isPrefix(const string &word) {
 
+bool dictionary::isPrefix(const string &word) const {
 	node* ptr = root.get();
 	for (char c : word) {
 		if (!ptr->children[c]) {
@@ -74,11 +71,11 @@ bool dictionary::isPrefix(const string &word) {
 	}
 	return true;
 }
+
 void dictionary::clear() {
 	root.reset(new node);
 }
-bool dictionary::empty() {
 
+bool dictionary::empty() {
 	return root->children.empty();
 }
-

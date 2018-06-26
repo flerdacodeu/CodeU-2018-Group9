@@ -1,8 +1,5 @@
-
-
 #ifndef TEST_H_
 #define TEST_H_
-
 
 #include <iostream>
 #include <vector>
@@ -57,6 +54,7 @@ inline std::ostream& operator<<(std::ostream& os, const std::vector<Type>& v) {
   os << "}";
   return os;
 }
+
 // with sets
 template <class Type>
 inline std::ostream& operator<<(std::ostream& os, const std::unordered_set<Type>& s) {
@@ -72,37 +70,5 @@ inline std::ostream& operator<<(std::ostream& os, const std::unordered_set<Type>
   os << "}";
   return os;
 }
-
-// Example usage:
-
-// EXPECT_TRUE(1 < 3);  // Prints nothing.
-// EXPECT_TRUE(5 < 3);  // main.cpp:53 Failed: Statement (5 < 3) is
-//                      // false, expected true.
-// EXPECT_TRUE(true);   // Prints nothing.
-// EXPECT_TRUE(false);  // Prints: tests.cpp:56 Failed: Statement (false) is
-//                      // false, expected true.
-// EXPECT_FALSE(5 > 6);
-// EXPECT_FALSE(5 > 0);  // Prints: tests.cpp:59 Failed: Statement (5 > 0) is
-//                       // true, expected false.
-// EXPECT_EQ(4, 2 + 2);
-// EXPECT_EQ(4, 3 + 1);
-// EXPECT_EQ(10 * 10, 50 + 51);  // tests:37 Failed: Statement (50 + 51) is 101,
-//                               // expected 100 (10 * 10).
-// EXPECT_EQ("pizza", std::string("pizz") + "a");
-// EXPECT_EQ("pizza", std::string("pizz") + "aaaa");
-// // tests.cpp:39 Failed: Statement (std::string("pizz")+"aaaa") is pizzaaaa,
-// // expected pizza ("pizza").
-//
-// int x;
-// EXPECT_NULL(&x);  // main.cpp:71 Failed: Statement (&x) is not null,
-//                   // expected null.
-//
-// std::vector<int> expected_vec{1, 2, 3};
-// std::vector<int> actual_vec{4, 5, 6};
-// EXPECT_EQ(expected_vec, actual_vec);
-// // main.cpp:77 Failed: Statement (actual_vec) is {4, 5, 6}, expected
-// // {1, 2, 3} (expected_vec).
-
-
 
 #endif /* TEST_H_ */
