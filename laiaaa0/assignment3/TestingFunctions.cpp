@@ -1,8 +1,9 @@
 #include "codeu_test_lib.h"
 #include "Dictionary.h"
+#include "q1.h"
+
 void CreateSampleGrid(std::vector<std::vector<char> > &grid){
     grid.clear();
-
     std::vector<char> line1{'a','a','r'};
     std::vector<char> line2{'t','c','d'};
     grid.push_back(line1);
@@ -12,12 +13,11 @@ void CreateSampleGrid(std::vector<std::vector<char> > &grid){
 
 
 Dictionary * test_CreateDictionaryFromVector(){
-
     std::vector<std::string> v{"car","card","cart","cat","rat"};
     Dictionary * d = new Dictionary(v);
     return d;
-
 }
+
 void test_IsWordInDictionary(Dictionary * d){
   EXPECT_TRUE(d->IsWord("cat"));
   EXPECT_TRUE(d->IsWord("car"));
@@ -25,8 +25,8 @@ void test_IsWordInDictionary(Dictionary * d){
   EXPECT_FALSE(d->IsWord("c"));
   EXPECT_FALSE(d->IsWord("RAT"));
   EXPECT_FALSE(d->IsWord("ca"));
-
 }
+
 void test_IsPrefixInDictionary (Dictionary * d){
   EXPECT_TRUE(d->IsPrefix("c"));
   EXPECT_TRUE(d->IsPrefix("ca"));
@@ -35,14 +35,13 @@ void test_IsPrefixInDictionary (Dictionary * d){
   EXPECT_FALSE(d->IsPrefix(""));
   EXPECT_FALSE(d->IsPrefix("a"));
   EXPECT_FALSE(d->IsPrefix("Ra"));
-
 }
 
 void test_IsWordAfterRemoval (Dictionary * d){
   EXPECT_TRUE(d->RemoveWord("cat"));
   EXPECT_FALSE(d->IsWord("cat"));
-
 }
+
 void test_IsPrefixAfterRemoval (Dictionary * d){
   EXPECT_TRUE(d->RemoveWord("card"));
   EXPECT_TRUE(d->IsPrefix("c"));
@@ -54,19 +53,15 @@ void test_IsPrefixAfterRemoval (Dictionary * d){
   EXPECT_FALSE(d->IsPrefix("r"));
   EXPECT_FALSE(d->IsPrefix("ra"));
   EXPECT_FALSE(d->IsPrefix("rat"));
-
-
-
 }
+
 void test_example(){
   std::vector<std::vector<char> > letter_grid(2, std::vector<char> (3,'.'));
   CreateSampleGrid(letter_grid);
-
   std::vector<std::string> v{"car","card","cart","cat"};
   Dictionary * d = new Dictionary(v);
   std::vector<std::string> result;
   result = FindAllWords(d,letter_grid);
-
   EXPECT_EQ(result.size(),3);
 }
 
@@ -76,29 +71,5 @@ void all_tests(){
   test_IsPrefixInDictionary(d);
   test_IsWordAfterRemoval(d);
   test_IsPrefixAfterRemoval(d);
-
   test_example();
-}
-
-
-
-//UNUSED FUNCTIONS
-
-char GetRandomLetter (){
-      return (char) (rand()%(1+'z'-'a') + 'a');
-}
-void CreateRandomGrid(std::vector<std::vector<char> > &grid){
-    for (int i = 0 ; i < grid.size(); ++i){
-        for (int j = 0; j < grid[i].size(); ++j){
-            grid[i][j] = GetRandomLetter();
-        }
-    }
-}
-void PrintGrid(const std::vector<std::vector<char> > &grid){
-  for (int i = 0 ; i < grid.size(); ++i){
-      for (int j = 0; j < grid[i].size(); ++j){
-          std::cout<<grid[i][j]<<" ";
-      }
-      std::cout<<std::endl;
-  }
 }
