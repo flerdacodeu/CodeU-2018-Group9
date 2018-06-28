@@ -11,15 +11,15 @@ void FindAllWordsRecursive(int x, int y, const Dictionary & d,
                             std::vector<std::vector<char> > &grid,
                             std::vector<std::vector<bool> > &visited,
                             std::string current_word,
-                            std::vector<std::string> &found_words) {
+                            std::set<std::string> &found_words) {
   current_word += grid[x][y];
-  visited[x][y] = true;
   if (d.IsWord(current_word)){
-    found_words.push_back(current_word);
+    found_words.insert(current_word);
   }
 
   if (!d.IsPrefix(current_word)) return;
 
+  visited[x][y] = true;
   for (int delta_x : {-1,0,+1}){
     for (int delta_y : {-1,0,+1}){
       const int next_x = x+delta_x;
@@ -36,9 +36,9 @@ void FindAllWordsRecursive(int x, int y, const Dictionary & d,
 
 
 
-std::vector<std::string> FindAllWords(const Dictionary &d, std::vector<std::vector<char> > &grid){
+std::set<std::string> FindAllWords(const Dictionary &d, std::vector<std::vector<char> > &grid){
   int n = grid.size();
-  std::vector<std::string>all_words;
+  std::set<std::string>all_words;
   for (int i = 0 ; i < n; ++i){
       int m = grid[i].size();
       for (int j = 0; j < m; ++j){

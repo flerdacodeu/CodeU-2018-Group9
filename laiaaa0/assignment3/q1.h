@@ -11,8 +11,8 @@ void FindAllWordsRecursive (int x, int y, const Dictionary & d,
                             std::vector<std::vector<char> > &grid,
                             std::vector<std::vector<bool> > &visited,
                             std::string current_word,
-                            std::vector<std::string> &found_words);
+                            std::set<std::string> &found_words);
 
-std::vector<std::string> FindAllWords(const Dictionary &d, std::vector<std::vector<char> > &grid);
+std::set<std::string> FindAllWords(const Dictionary &d, std::vector<std::vector<char> > &grid);
 
 #endif

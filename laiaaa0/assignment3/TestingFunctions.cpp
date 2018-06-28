@@ -58,8 +58,11 @@ void test_example(){
   CreateSampleGrid(letter_grid);
   std::vector<std::string> v{"car","card","cart","cat"};
   Dictionary d(v);
-  std::vector<std::string> result;
+  std::set <std::string> result;
   result = FindAllWords(d,letter_grid);
+  EXPECT_TRUE(result.find("cat")!=result.end());
+  EXPECT_TRUE(result.find("car")!=result.end());
+  EXPECT_TRUE(result.find("card")!=result.end());
   EXPECT_EQ(result.size(),3);
 }
 

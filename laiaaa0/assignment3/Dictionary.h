@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <set>
 
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
