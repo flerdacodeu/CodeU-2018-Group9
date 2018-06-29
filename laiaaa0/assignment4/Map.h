@@ -14,6 +14,7 @@ class Map {
         bool ReadMap();
         void WriteMap();
         int FindNumberIslands();
+        bool ExpandNode(int x, int y, std::vector<std::vector<bool> > & visited);
 
         bool InRange(int value, int min, int max);
         bool IsInMap(int x, int y);
