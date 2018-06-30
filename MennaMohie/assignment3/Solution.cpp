@@ -72,21 +72,9 @@ class Trie
 		return true;
 	}
 
-	void remove(TrieNode *node)
-	{
-		if (node->children.empty())
-			delete node;
-		else
-		{
-			unordered_map<char, TrieNode*>::iterator it;
-			for (it = node->children.begin(); it != node->children.end(); it++)
-				remove(it->second);
-		}
-	}
-
 public:
 
-	Trie(vector<string> words)
+	Trie(const vector<string> &words)
 	{
 		root = new TrieNode();
 		for (string word : words)
@@ -94,24 +82,6 @@ public:
 			root->addWord(word);
 		}
 	}
-
-	//I need help doing the copy constructor :/
-	/*Trie(const Trie&)
-	{
-
-	}
-
-	Trie& operator =(const Trie&)
-	{
-
-	}
-
-	//copy constructor is needed first
-	~Trie() 
-	{
-		if(root!=nullptr)
-			remove(root);
-	}*/
 
 	bool isWord(string word)
 	{
@@ -132,7 +102,7 @@ class Finder
 	int cols;
 	vector<vector<bool>> visited;
 
-	bool formWords(string &word, int currentRow, int currentCol, vector<string> &words)
+	bool formWords(string &word, int currentRow, int currentCol, set<string> &words)
 	{
 		if (!dictionary.isPrefix(word))
 			return false;
@@ -147,17 +117,14 @@ class Finder
 			{
 				updatedRow = currentRow + x;
 				updatedCol = currentCol + y;
-				if ((y != 0 || x != 0) && updatedRow >= 0 && updatedRow < rows && updatedCol >= 0 && updatedCol < cols)
+				if (updatedRow >= 0 && updatedRow < rows && updatedCol >= 0 && updatedCol < cols && !visited[updatedRow][updatedCol])
 				{
-					if (!visited[updatedRow][updatedCol])
+					updatedWord = word + grid[updatedRow][updatedCol];
+					if (dictionary.isWord(updatedWord))
 					{
-						updatedWord = word + grid[updatedRow][updatedCol];
-						if (dictionary.isWord(updatedWord))
-						{
-							words.push_back(updatedWord);
-						}
-						formWords(updatedWord, updatedRow, updatedCol, words);
+						words.emplace(updatedWord);
 					}
+					formWords(updatedWord, updatedRow, updatedCol, words);
 				}
 			}
 		}
@@ -166,12 +133,15 @@ class Finder
 
 public:
 
-	Finder(const Trie &d, const vector<vector<char>> &g, const int r, const int c) :dictionary(d), grid(g), rows(r), cols(c) {}
+	Finder(const Trie &d, const vector<vector<char>> &g) :dictionary(d), grid(g)
+	{
+		rows = g.size();
+		cols = g[0].size();
+	}
 
 	set<string> formedWords()
 	{
-		set<string> allFormedWords;
-		vector<string> words;
+		set<string> words;
 		string word;
 
 		for (int r = 0; r < rows; r++)
@@ -181,18 +151,11 @@ public:
 				visited.clear();
 				visited.resize(rows,vector<bool>(cols,false));
 				
-				words.clear();
 				word = grid[r][c];
-				if (formWords(word, r, c, words))
-				{
-					for (string word : words)
-					{
-						allFormedWords.emplace(word);
-					}
-				}
+				formWords(word, r, c, words);
 			}
 		}
-		return allFormedWords;
+		return words;
 	}
 };
 
@@ -222,13 +185,10 @@ int main()
 	grid1.push_back({ 'A', 'A', 'R' });
 	grid1.push_back({ 'T', 'C', 'D' });
 
-	Finder finder1(dict1, grid1, 2, 3);
+	Finder finder1(dict1, grid1);
 
 	set<string> actual1 = finder1.formedWords();
 	set<string> expected1 = { "CAT", "CARD", "CAR" };
-	EXPECT_EQ(expected1, actual1);
-	expected1.clear();
-	expected1 = { "CAT", "CARD" };
 	EXPECT_EQ(expected1, actual1);
 
 	Trie dict2({ "banana","mango","grapes","apple" });
@@ -252,13 +212,10 @@ int main()
 	grid2.push_back({ 'e','n','a','d' });
 	grid2.push_back({ 'm','a','c','b' });
 
-	Finder finder2(dict2, grid2, 5, 4);
+	Finder finder2(dict2, grid2);
 
 	set<string> actual2 = finder2.formedWords();
 	set<string> expected2 = { "banana", "apple", "mango" };
-	EXPECT_EQ(expected2, actual2);
-	expected2.clear();
-	expected2 = { "Banana", "apple", "mango" };
 	EXPECT_EQ(expected2, actual2);
 
 	return 0;
