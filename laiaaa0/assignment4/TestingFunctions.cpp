@@ -12,17 +12,6 @@ void test_Example(){
     EXPECT_EQ(3,map.FindNumberIslands());
 }
 
-void test_ExampleTwoIslands(){
-    std::vector<std::vector<char > > tiles(5,std::vector<char> (5,'T'));
-    tiles[0][1] = 'T';
-    tiles[1][1] = 'T';
-    tiles[1][0] = 'T';
-    tiles[0][3] = 'T';
-    tiles[2][2] = 'T';
-    tiles[3][2] = 'T';
-    Map map(tiles);
-    EXPECT_EQ(3,map.FindNumberIslands());
-}
 
 void test_EmptyMap(){
     std::vector<std::vector<char > > tiles(0,std::vector<char> (0));
@@ -58,7 +47,6 @@ void test_CreateMapFromStr(){
                         "FFTF-";
   Map map(map_str);
   EXPECT_EQ(4,map.GetNumRows());
-  EXPECT_EQ(4,map.GetNumCols());
   EXPECT_EQ(3,map.FindNumberIslands());
 }
 void test_IslandSurroundingIsland(){
