@@ -13,7 +13,7 @@ class IslandCounter {
   (up/down/left/right - this happens if |deltaI-deltaJ|=1)
    and false otherwise*/
   bool isLegalNeighbor(int i, int j, int deltaI, int deltaJ);
-  /*updates the land neighbors cells which belong to the islandNum island*/
+  /*updates the land neighbors cells which belong to the current island*/
   void updateNeighbors(int i, int j);
 
  public:
