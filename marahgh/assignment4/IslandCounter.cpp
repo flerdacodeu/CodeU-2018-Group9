@@ -17,7 +17,7 @@ bool IslandCounter::isLegalNeighbor(int i, int j, int deltaI, int deltaJ) {
   return (inBounds(i, j) && (abs(deltaI - deltaJ) == 1));
 }
 
-/*updates the land neighbors cells which belong to the islandNum island*/
+/*updates the land neighbors cells which belong to the current island*/
 void IslandCounter::updateNeighbors(int i, int j) {
   for (int rowDelta : {0, 1, -1}) {
     for (int colDelta : {0, 1, -1}) {
