@@ -3,11 +3,7 @@
 #include <vector>
 using namespace std;
 
-static void markIsland(
-	const vector<vector<bool>> &grid,
-	int row,
-	int col,
-	vector<vector<bool>> *visited) {
+static void markIsland(const vector<vector<bool>> &grid, int row, int col, vector<vector<bool>> *visited) {
 	// boundary check
 	if (row < 0 || row >= grid.size() || col < 0 || col >= grid[row].size()) {
 		return;
@@ -40,31 +36,39 @@ int getIslandsCount(const vector<vector<bool>> &grid) {
 }
 
 // tests
+
+// helping method to convert a vector of strings to a vector of vector of bool
+static vector<vector<bool>> stringToBool(const vector<string> &input){
+  vector<vector<bool>> ret(input.size());
+  for(int i=0; i<input.size(); i++){
+    for(char c: input[i]){
+      ret[i].push_back(c=='T'? true : false);
+    }
+  }
+  return ret;
+}
+
 void emptyGrid_test() {
 	vector<vector<bool>> grid;
 	EXPECT_EQ(0, getIslandsCount(grid));
 }
 
 void landGrid_test() {
-	vector<vector<bool>> grid = {{true, true, true},
-                                 {true, true, true},
-                                 {true, true, true}};
+  vector<vector<bool>> grid = stringToBool(vector<string> (3, "TTT"));
 	EXPECT_EQ(1, getIslandsCount(grid));
 }
 
 void waterGrid_test() {
-	vector<vector<bool>> grid = {{false, false, false},
-                                 {false, false, false},
-                                 {false, false, false}};
+	vector<vector<bool>> grid = stringToBool(vector<string> (3, "FFF"));
 	EXPECT_EQ(0, getIslandsCount(grid));
 }
 
 void normalGrid_test() {
-	vector<vector<bool>> grid = {{false, true, false, true},
-                                 {true, true, false, false},
-                                 {false, false, true, false},
-                                 {false, false, true, false}};
-	EXPECT_EQ(3, getIslandsCount(grid));
+  vector<string> grid = {"FTFT",
+                         "TTFF",
+                         "FFTF",
+                         "FFTF"};
+	EXPECT_EQ(3, getIslandsCount(stringToBool(grid)));
 }
 
 void oneLandTile_test() {
@@ -78,35 +82,35 @@ void oneWaterTile_test() {
 }
 
 void zigzagGrid_test() {
-	vector<vector<bool>> grid = {{false, false, true, false},
-                                 {false, true, false, false},
-                                 {false, false, true, false},
-                                 {false, true, false, false}};
-	EXPECT_EQ(4, getIslandsCount(grid));
+  vector<string> grid = {"FFTF",
+                         "FTFF",
+                         "FFTF",
+                         "FTFF"};
+	EXPECT_EQ(4, getIslandsCount(stringToBool(grid)));
 }
 
 void diagonalLandGrid_test() {
-	vector<vector<bool>> grid = {{true, false, false, false},
-                                 {false, true, false, false},
-                                 {false, false, true, false},
-                                 {false, false, false, true}};
-	EXPECT_EQ(4, getIslandsCount(grid));
+  vector<string> grid = {"TFFF",
+                         "FTFF",
+                         "FFTF",
+                         "FFFT"};
+	EXPECT_EQ(4, getIslandsCount(stringToBool(grid)));
 }
 
 void diagonalWaterGrid_test() {
-	vector<vector<bool>> grid = {{true, true, true, false},
-                                 {true, true, false, true},
-                                 {true, false, true, true},
-                                 {false, true, true, true}};
-	EXPECT_EQ(2, getIslandsCount(grid));
+  vector<string> grid = {"TTTF",
+                         "TTFT",
+                         "TFTT",
+                         "FTTT"};
+	EXPECT_EQ(2, getIslandsCount(stringToBool(grid)));
 }
 
 void unevenGrid_test() {
-	vector<vector<bool>> grid = {{true, true},
-                                 {true, true, false, true},
-                                 {false},
-                                 {false, true, true}};
-	EXPECT_EQ(3, getIslandsCount(grid));
+  vector<string> grid = {"TT",
+                         "TTFT",
+                         "F",
+                         "FTT"};
+	EXPECT_EQ(3, getIslandsCount(stringToBool(grid)));
 }
 int main() {
 	// tests
@@ -122,4 +126,3 @@ int main() {
 	unevenGrid_test();
 	return 0;
 }
-
