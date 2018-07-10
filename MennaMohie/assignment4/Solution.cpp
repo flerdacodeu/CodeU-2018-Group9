@@ -10,13 +10,11 @@ class Counter
 	int deltaX[4] = { -1,0,0,1 };
 	int deltaY[4] = { 0,-1,1,0 };
 
-	bool validRow(const int &row)
-	{
+	bool validRow(const int &row){
 		return row >= 0 && row < rows;
 	}
 
-	bool validCol(const int &col)
-	{
+	bool validCol(const int &col){
 		return col >= 0 && col < cols;
 	}
 
@@ -24,21 +22,21 @@ public:
 
 	Counter(const vector<vector<bool>> g):grid(g), rows(g.size()), cols(g[0].size()), count(0){}
 
-	void removeIsland(const int currentRow, const int currentCol)
+	void removeIsland(int currentRow, int currentCol)
 	{
 		grid[currentRow][currentCol] = false;
 
-		int updatedRow, updatedCol;
 		//iterating over deltaX and deltaY to move up,left,right,down
 		for (int i : {0, 1, 2, 3})
 		{
-			updatedRow = currentRow + deltaX[i];
-			updatedCol = currentCol + deltaY[i];
+			int updatedRow = currentRow + deltaX[i];
+			int updatedCol = currentCol + deltaY[i];
 			if (validRow(updatedRow) && validCol(updatedCol) && grid[updatedRow][updatedCol])
 			{
 				removeIsland(updatedRow, updatedCol);
 			}
 		}
+
 	}
 
 	int countIslands()
@@ -54,6 +52,13 @@ public:
 				}
 			}
 		}
+
+		/*clearing the grid,
+		to avoid redoing the whole process if the function is called again,
+		because we already have the count*/
+		rows = 0;
+		cols = 0;
+		grid.clear();
 
 		return count;
 	}
@@ -110,6 +115,6 @@ int main()
 	diagonalIslandTest();
 	oneBigIslandTest();
 	fiveIslandsTest();
-  
+
 	return 0;
 }
