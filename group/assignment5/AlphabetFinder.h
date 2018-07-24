@@ -28,12 +28,13 @@ class AlphabetFinder {
     // A helping function of the topologicalSort.
     void visit(char c);
 
-   public:
-    PrecedenceGraph(vector<string> words);
-
     // makes a topological Sort on the graph.
     // returns a stack of the sorted graph elements.
     stack<char> topologicalSort();
+	
+   public:
+    PrecedenceGraph(const vector<string>& words);
+
   };
 
   PrecedenceGraph rules;
