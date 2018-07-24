@@ -22,16 +22,16 @@ void AlphabetFinder::PrecedenceGraph::visit(char c) {
   // when we empty the stack, they come out in this order: a b c, which is
   // the correct order
   unordered_set<char>::iterator it;
-  for (it = charsMap[c].begin(); it != charsMap[c].end(); it++) {
-    if (!visited[*it]) {
-      visit(*it);
+  for (char letter : charsMap[c]) {
+    if (!visited[letter]) {
+      visit(letter);
     }
   }
 
   alphabetStack.push(c);
 }
 
-AlphabetFinder::PrecedenceGraph::PrecedenceGraph(vector<string> words) {
+AlphabetFinder::PrecedenceGraph::PrecedenceGraph(const vector<string>& words) {
   // getting all graph nodes (all unique chars)
   for (string word : words) {
     for (char c : word) {
@@ -105,4 +105,3 @@ vector<char> AlphabetFinder::getAlphabet() {
 
   return alphabet;
 }
-
