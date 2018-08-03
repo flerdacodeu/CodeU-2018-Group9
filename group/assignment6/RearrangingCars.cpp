@@ -28,7 +28,7 @@ void getAllConfigurations( ParkingLot& initialState, ParkingLot& finalState, vec
 				configuration.pop_back();
 				initialState.undoMove(move); /*INCOMPLETE: add undoMove method to ParkingLot Class*/
 			}
-			else if(finalState.getCarPS(initialState.getCarAt(psID)) == initialState.getCarPS(finalState.getCarAt(psID))) { // swapable
+			else { 
 				/*INCOMPLETE: add getAllEmptyPs method to ParkingLot Class*/
 				vector<int> emptyPs = initialState.getAllEmptyPs(); // get all empty slots in intitial state
 				for(int emptyPsID : emptyPS) { // loop on them
@@ -61,7 +61,7 @@ void getConfiguration(ParkingLot initialState, ParkingLot finalState, vector<Mov
 				initialState.makeMove(move);
 				(*configuration).push_back(move); // save move
 			}
-			else { // swapable
+			else { 
 				/*INCOMPLETE: add getRandomEmptyPs() method to ParkingLot Class*/
 				int emptyPsID = initialState.getRandomEmptyPs(); // get any random empty slot
 				// move the car in this position to an empty slot
