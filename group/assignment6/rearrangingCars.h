@@ -10,6 +10,5 @@ private:
 	ParkingLot initialState;    
 public:
     RearrangingCars(const ParkingLot& initial state);
-    void getAllConfigurations(ParkingLot& initialState, ParkingLot& finalState, vector<Move> configuration, vector<vector<Move>> *allConfigurations);
 	void getConfiguration(ParkingLot initialState, ParkingLot finalState, vector<Move> *configuration) ;
 };
