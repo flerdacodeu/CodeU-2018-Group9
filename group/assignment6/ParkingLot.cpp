@@ -1,8 +1,10 @@
-
 #include"ParkingLot.h"
 ParkingLot::ParkingLot(int size) :
-		cars(vector<int>()), Ps(vector<int>(size, EMPTYPS)), emptyPs(-1), carsNum(
-				0), size(size) {
+	cars(vector<int>(size-1)), Ps(vector<int>(size, EMPTYPS)), emptyPs(-1), carsNum(
+		0), size(size) {}
+
+bool ParkingLot::operator!=(const ParkingLot& PL){
+	return !(cars == PL.cars && Ps == PL.Ps);
 }
 
 bool ParkingLot::addCar(int ps) {
@@ -21,6 +23,7 @@ bool ParkingLot::addCar(int ps) {
 	if (isFull()) {
 		updateEmptyPs();
 	}
+
 	return true;
 }
 
@@ -29,7 +32,7 @@ bool ParkingLot::isOutOfBounds(int ps) {
 }
 
 bool ParkingLot::invalidCarNumber(int carNum) {
-	return (carNum < 0 || (unsigned int) carNum >= cars.size());
+	return (carNum < 0 || (unsigned int)carNum >= cars.size());
 }
 
 void ParkingLot::updateEmptyPs() {
@@ -44,8 +47,12 @@ void ParkingLot::updateEmptyPs() {
 	}
 }
 
+int ParkingLot::getSize(){
+	return size;
+}
+
 bool ParkingLot::isFull() {
-	return ((unsigned int) carsNum == Ps.size() - 1);
+	return ((unsigned int)carsNum == Ps.size() - 1);
 }
 
 int ParkingLot::getCarAt(int ps) {
@@ -72,7 +79,7 @@ int ParkingLot::getEmptyPs() {
 bool ParkingLot::makeMove(Move move) {
 	int from = move.getFromPs();
 	int to = move.getToPs();
-	int car = move.getCar();
+	int car = move.getCarNum();
 	if (isOutOfBounds(from) || isOutOfBounds(to)) {
 		return false;
 	}
@@ -90,6 +97,7 @@ bool ParkingLot::makeMove(Move move) {
 	}
 	Ps[to] = car;
 	cars[car] = to;
+	Ps[from] = -1;
 	updateEmptyPs();
 	return true;
 }
